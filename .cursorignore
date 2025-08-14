@@ -1,0 +1,18 @@
+# Portfolio repository folders - exclude from Cursor indexing
+# These are separate repositories that should not be indexed by Cursor
+INT/
+TEST/
+PROD/
+
+# Large directories that might slow down indexing
+node_modules/
+.git/
+dist/
+build/
+target/
+
+# Temporary and cache files
+*.log
+*.tmp
+.cache/
+temp/

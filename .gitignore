@@ -1,0 +1,11 @@
+# Portfolio repository folders - separate Git repositories
+# These are cloned by setup scripts and should not be tracked
+INT/
+TEST/
+PROD/
+
+# Common development files
+*.log
+*.tmp
+.DS_Store
+Thumbs.db 
