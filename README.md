@@ -52,7 +52,33 @@ Cloning means downloading a complete copy of this repository (all files and scri
    git clone https://github.com/larkinmaxim/RepoSetupandUpdate.git .
    ```
 
-#### Option 3: Download as ZIP (Alternative if Git isn't working)
+#### Option 3: Using Right-Click Context Menu (Easiest Visual Method)
+
+1. **Create your development folder:**
+   - Open File Explorer (Windows key + E)
+   - Navigate to your C: drive
+   - Create a new folder called `DEV` (Right-click → New → Folder)
+   - **Double-click** to open the `C:\DEV` folder
+
+2. **Use Git Bash from right-click menu:**
+   - **Right-click** on empty space inside the `C:\DEV` folder
+   - Look for **"Git Bash Here"** in the context menu
+   - Click on **"Git Bash Here"** - this opens a Git terminal in the correct location
+
+3. **Clone the repository:**
+   - Copy and paste this command into the Git Bash window:
+   ```bash
+   git clone https://github.com/larkinmaxim/RepoSetupandUpdate.git .
+   ```
+   - Press Enter and wait for the download to complete
+
+4. **Close Git Bash and check your folder:**
+   - Type `exit` and press Enter to close Git Bash
+   - Look in your `C:\DEV` folder - you should see all the `.ps1` files
+
+> **Note:** If you don't see "Git Bash Here" in the right-click menu, you need to install Git for Windows first (see troubleshooting section below).
+
+#### Option 4: Download as ZIP (Alternative if Git isn't working)
 
 1. **Go to the GitHub page:**
    - Open your web browser
@@ -86,16 +112,32 @@ After successful cloning, your `C:\DEV` folder should contain:
 - Solution: You need to install Git first
 - Go to: https://git-scm.com/downloads
 - Download and install Git for Windows
+- ✅ **Important:** During installation, make sure "Git Bash Here" is selected
 - Restart your computer and try again
+
+**Problem: Don't see "Git Bash Here" in right-click menu**
+- Solution: Git for Windows isn't installed or wasn't installed with context menu integration
+- Download Git from: https://git-scm.com/downloads
+- During installation, make sure these options are checked:
+  - ✅ "Windows Explorer integration"
+  - ✅ "Git Bash Here"
+  - ✅ "Git GUI Here"
+- Restart your computer after installation
 
 **Problem: "Access denied" or permission errors**
 - Solution: Run PowerShell as Administrator
 - Right-click on PowerShell → "Run as administrator"
+- Alternative: Use Git Bash instead (usually has fewer permission issues)
 
 **Problem: Can't find the cloned files**
 - Make sure you're in the correct directory (`C:\DEV`)
 - The `.` at the end of the clone command is important - it means "clone into current folder"
 - If files are in a subfolder, move them up to `C:\DEV` directly
+
+**Problem: Git Bash window closes immediately**
+- This is normal after the download completes
+- Just check your `C:\DEV` folder - the files should be there
+- If nothing downloaded, try running the command again
 
 ### Ready to Continue?
 Once you see all the `.ps1` files in your `C:\DEV` folder, you're ready to proceed to the next section!
