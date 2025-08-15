@@ -145,10 +145,29 @@ After successful cloning, your `C:\DEV` folder should contain:
 
 **Problem: TortoiseGit "No supported authentication methods available (server sent: publickey)"**
 - This is a TortoiseGit SSH configuration issue, not missing SSH keys
-- **Solution 1 (Recommended):** Change TortoiseGit SSH client
-  - Right-click → TortoiseGit → Settings → Network
-  - Change "SSH client" from TortoiseGitPlink.exe to: `C:\Windows\System32\OpenSSH\ssh.exe`
-  - Or use: `C:\Program Files\Git\usr\bin\ssh.exe`
+- **Solution 1 (Recommended):** Change TortoiseGit SSH client to OpenSSH
+  
+  **Detailed Steps:**
+  1. **Open TortoiseGit Settings:**
+     - Right-click on any folder in Windows Explorer
+     - Select "TortoiseGit" → "Settings" from the context menu
+  
+  2. **Navigate to Network Settings:**
+     - In the left panel, click on "Network"
+     - Look for the "SSH client" field on the right side
+  
+  3. **Change SSH Client Path:**
+     - **Current value:** Usually shows `TortoiseGitPlink.exe` (this causes the error)
+     - **Click "Browse"** button next to the SSH client field
+     - **Navigate to:** `C:\Windows\System32\OpenSSH\`
+     - **Select:** `ssh.exe`
+     - **Alternative path:** `C:\Program Files\Git\usr\bin\ssh.exe`
+  
+  4. **Apply Changes:**
+     - Click "Apply" then "OK"
+     - **Test:** Try your TortoiseGit operation again (clone, pull, push)
+  
+  **Why this works:** TortoiseGit's default SSH client (TortoiseGitPlink) uses different authentication than OpenSSH, which your system is already configured for.
 - **Solution 2 (Easiest):** Use HTTPS instead of SSH
   - Change repository URL from `git@gitlab.office.transporeon.com:...`
   - To: `https://gitlab.office.transporeon.com/...`
