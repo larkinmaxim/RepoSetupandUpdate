@@ -143,6 +143,20 @@ After successful cloning, your `C:\DEV` folder should contain:
 - If nothing downloaded, try running the command again
 - This happens with both PowerShell (Windows Terminal) and Git Bash
 
+**Problem: TortoiseGit "No supported authentication methods available (server sent: publickey)"**
+- This is a TortoiseGit SSH configuration issue, not missing SSH keys
+- **Solution 1 (Recommended):** Change TortoiseGit SSH client
+  - Right-click → TortoiseGit → Settings → Network
+  - Change "SSH client" from TortoiseGitPlink.exe to: `C:\Windows\System32\OpenSSH\ssh.exe`
+  - Or use: `C:\Program Files\Git\usr\bin\ssh.exe`
+- **Solution 2 (Easiest):** Use HTTPS instead of SSH
+  - Change repository URL from `git@gitlab.office.transporeon.com:...`
+  - To: `https://gitlab.office.transporeon.com/...`
+  - Enter GitLab username/password when prompted
+- **Solution 3:** Use PuTTY authentication
+  - Convert SSH key to .ppk format using PuTTYgen
+  - Load .ppk key in Pageant (PuTTY authentication agent)
+
 ### Ready to Continue?
 Once you see all the `.ps1` files in your `C:\DEV` folder, you're ready to proceed to the next section!
 
