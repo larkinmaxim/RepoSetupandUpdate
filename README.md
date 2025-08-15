@@ -48,16 +48,16 @@ Cloning means downloading a complete copy of this repository (all files and scri
    ```
 
 3. **Clone the repository:**
-   ```bash
-   git clone https://github.com/larkinmaxim/RepoSetupandUpdate.git .
-   ```
+```bash
+git clone https://github.com/larkinmaxim/RepoSetupandUpdate.git .
+```
 
 #### Option 3: Using Right-Click Context Menu (Easiest Visual Method)
 
 1. **Create your development folder:**
    - Open File Explorer (Windows key + E)
    - Navigate to your C: drive
-   - Create a new folder called `DEV` (Right-click → New → Folder)
+   - Create a new folder called `DEV` or any other NAME (Right-click → New → Folder)
    - **Double-click** to open the `C:\DEV` folder
 
 2. **Open terminal from right-click menu:**
@@ -79,22 +79,7 @@ Cloning means downloading a complete copy of this repository (all files and scri
 
 > **Note:** If you don't see "Open in Terminal" or "Git Bash Here" in the right-click menu, you may need to install Git for Windows first (see troubleshooting section below).
 
-#### Option 4: Download as ZIP (Alternative if Git isn't working)
 
-1. **Go to the GitHub page:**
-   - Open your web browser
-   - Go to: https://github.com/larkinmaxim/RepoSetupandUpdate
-
-2. **Download the ZIP file:**
-   - Click the green "Code" button
-   - Select "Download ZIP"
-   - Save it to your Downloads folder
-
-3. **Extract the files:**
-   - Go to your Downloads folder
-   - Right-click on the ZIP file → "Extract All"
-   - Choose `C:\DEV` as the destination
-   - Make sure "Show extracted files when complete" is checked
 
 ### What You Should See After Cloning
 
@@ -168,13 +153,9 @@ After successful cloning, your `C:\DEV` folder should contain:
      - **Test:** Try your TortoiseGit operation again (clone, pull, push)
   
   **Why this works:** TortoiseGit's default SSH client (TortoiseGitPlink) uses different authentication than OpenSSH, which your system is already configured for.
-- **Solution 2 (Easiest):** Use HTTPS instead of SSH
-  - Change repository URL from `git@gitlab.office.transporeon.com:...`
-  - To: `https://gitlab.office.transporeon.com/...`
-  - Enter GitLab username/password when prompted
-- **Solution 3:** Use PuTTY authentication
-  - Convert SSH key to .ppk format using PuTTYgen
-  - Load .ppk key in Pageant (PuTTY authentication agent)
+
+
+
 
 ### Ready to Continue?
 Once you see all the `.ps1` files in your `C:\DEV` folder, you're ready to proceed to the next section!
