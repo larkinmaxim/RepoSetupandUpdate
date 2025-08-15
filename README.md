@@ -9,7 +9,8 @@ Cloning means downloading a complete copy of this repository (all files and scri
 
 ### Step-by-Step Instructions for Absolute Beginners
 
-#### Option 1: Using File Explorer + PowerShell (Recommended for Beginners)
+<details>
+<summary><strong>Option 1: Using File Explorer + PowerShell (Recommended for Beginners)</strong></summary>
 
 1. **Create a folder for your development environment:**
    - Open File Explorer (Windows key + E)
@@ -34,7 +35,10 @@ Cloning means downloading a complete copy of this repository (all files and scri
    - Look in your `C:\DEV` folder
    - You should now see several `.ps1` files (STEP1_sshKeygen.ps1, etc.)
 
-#### Option 2: Using Command Prompt
+</details>
+
+<details>
+<summary><strong>Option 2: Using Command Prompt</strong></summary>
 
 1. **Open Command Prompt:**
    - Press Windows key + R
@@ -48,11 +52,14 @@ Cloning means downloading a complete copy of this repository (all files and scri
    ```
 
 3. **Clone the repository:**
-```bash
-git clone https://github.com/larkinmaxim/RepoSetupandUpdate.git .
-```
+   ```bash
+   git clone https://github.com/larkinmaxim/RepoSetupandUpdate.git .
+   ```
 
-#### Option 3: Using Right-Click Context Menu (Easiest Visual Method)
+</details>
+
+<details>
+<summary><strong>Option 3: Using Right-Click Context Menu (Easiest Visual Method)</strong></summary>
 
 1. **Create your development folder:**
    - Open File Explorer (Windows key + E)
@@ -79,6 +86,8 @@ git clone https://github.com/larkinmaxim/RepoSetupandUpdate.git .
 
 > **Note:** If you don't see "Open in Terminal" or "Git Bash Here" in the right-click menu, you may need to install Git for Windows first (see troubleshooting section below).
 
+</details>
+
 
 
 ### What You Should See After Cloning
@@ -94,14 +103,20 @@ After successful cloning, your `C:\DEV` folder should contain:
 
 ### Troubleshooting Common Issues
 
-**Problem: "git is not recognized as an internal or external command"**
+<details>
+<summary><strong>Problem: "git is not recognized as an internal or external command"</strong></summary>
+
 - Solution: You need to install Git first
 - Go to: https://git-scm.com/downloads
 - Download and install Git for Windows
 - ✅ **Important:** During installation, make sure "Git Bash Here" is selected
 - Restart your computer and try again
 
-**Problem: Don't see "Open in Terminal" or "Git Bash Here" in right-click menu**
+</details>
+
+<details>
+<summary><strong>Problem: Don't see "Open in Terminal" or "Git Bash Here" in right-click menu</strong></summary>
+
 - **Windows 11/newer:** Look for "Open in Terminal" - this is the modern equivalent
 - **Older Windows:** Look for "Git Bash Here" after installing Git for Windows
 - **If neither appears:** Git for Windows isn't installed or wasn't installed with context menu integration
@@ -112,23 +127,39 @@ After successful cloning, your `C:\DEV` folder should contain:
   - ✅ "Git GUI Here"
 - Restart your computer after installation
 
-**Problem: "Access denied" or permission errors**
+</details>
+
+<details>
+<summary><strong>Problem: "Access denied" or permission errors</strong></summary>
+
 - Solution: Run PowerShell as Administrator
 - Right-click on PowerShell → "Run as administrator"
 - Alternative: Use Git Bash instead (usually has fewer permission issues)
 
-**Problem: Can't find the cloned files**
+</details>
+
+<details>
+<summary><strong>Problem: Can't find the cloned files</strong></summary>
+
 - Make sure you're in the correct directory (`C:\DEV`)
 - The `.` at the end of the clone command is important - it means "clone into current folder"
 - If files are in a subfolder, move them up to `C:\DEV` directly
 
-**Problem: Terminal window closes immediately**
+</details>
+
+<details>
+<summary><strong>Problem: Terminal window closes immediately</strong></summary>
+
 - This is normal after the download completes
 - Just check your `C:\DEV` folder - the files should be there
 - If nothing downloaded, try running the command again
 - This happens with both PowerShell (Windows Terminal) and Git Bash
 
-**Problem: TortoiseGit "No supported authentication methods available (server sent: publickey)"**
+</details>
+
+<details>
+<summary><strong>Problem: TortoiseGit "No supported authentication methods available (server sent: publickey)"</strong></summary>
+
 - This is a TortoiseGit SSH configuration issue, not missing SSH keys
 - **Solution 1 (Recommended):** Change TortoiseGit SSH client to OpenSSH
   
@@ -154,6 +185,8 @@ After successful cloning, your `C:\DEV` folder should contain:
   
   **Why this works:** TortoiseGit's default SSH client (TortoiseGitPlink) uses different authentication than OpenSSH, which your system is already configured for.
 
+</details>
+
 
 
 
@@ -164,14 +197,20 @@ Once you see all the `.ps1` files in your `C:\DEV` folder, you're ready to proce
 
 There are two easy ways to run the PowerShell scripts in this repository:
 
-### Method 1: Right-Click (Easiest for Beginners)
+<details>
+<summary><strong>Method 1: Right-Click (Easiest for Beginners)</strong></summary>
+
 1. **Navigate** to the folder where you cloned the repository
 2. **Right-click** on any `.ps1` script file (e.g., `STEP1_sshKeygen.ps1`)
 3. **Select** "Run with PowerShell" from the context menu
 4. **Allow execution** if Windows asks for permission
 5. **Follow** the on-screen prompts
 
-### Method 2: PowerShell Command Line
+</details>
+
+<details>
+<summary><strong>Method 2: PowerShell Command Line</strong></summary>
+
 1. **Open** PowerShell as Administrator (recommended)
 2. **Navigate** to the repository folder: `cd C:\DEV` (or your chosen directory)
 3. **Run** the script: `.\STEP1_sshKeygen.ps1`
@@ -180,6 +219,8 @@ There are two easy ways to run the PowerShell scripts in this repository:
 > ```powershell
 > Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 > ```
+
+</details>
 
 ## 📋 Overview
 
@@ -213,6 +254,9 @@ Run the SSH key generation script:
 - **Method 1 (Recommended):** Right-click on `STEP1_sshKeygen.ps1` → "Run with PowerShell"
 - **Method 2 (Optional):** `.\STEP1_sshKeygen.ps1`
 
+<details>
+<summary><strong>Step 1 Details - What it does and options</strong></summary>
+
 **What it does:**
 - Generates a 4096-bit RSA SSH key pair
 - Saves keys to `~/.ssh/id_rsa` and `~/.ssh/id_rsa.pub`
@@ -235,11 +279,16 @@ Run the SSH key generation script:
 3. Click "Add SSH Key" and paste the public key
 4. Give it a descriptive title (e.g., "GitLab SSH Key")
 
+</details>
+
 ### Step 2: Test GitLab Connection
 
 Verify your SSH setup is working:
 - **Method 1 (Recommended):** Right-click on `STEP2_testGitLabConnection.ps1` → "Run with PowerShell"
 - **Method 2 (Optional):** `.\STEP2_testGitLabConnection.ps1`
+
+<details>
+<summary><strong>Step 2 Details - What it does and expected output</strong></summary>
 
 **What it does:**
 - Checks if SSH keys exist
@@ -254,11 +303,16 @@ SSH connection to GitLab is working perfectly!
 GitLab Response: Welcome to GitLab, @username!
 ```
 
+</details>
+
 ### Step 3: Setup INT Repository
 
 Clone the Integration environment:
 - **Method 1 (Recommended):** Right-click on `STEP3_setup-int-repo.ps1` → "Run with PowerShell"
 - **Method 2 (Optional):** `.\STEP3_setup-int-repo.ps1`
+
+<details>
+<summary><strong>Step 3 Details - What it does and timing</strong></summary>
 
 **What it does:**
 - Clones repository branch `3.100/in` to `INT/` folder
@@ -268,12 +322,17 @@ Clone the Integration environment:
 
 ⏱️ **Time Required:** This step can take up to 20 minutes due to the large size of the cloned repository.
 
+</details>
+
 
 ### Step 4: Setup TEST Repository
 
 Clone the Test/Acceptance environment:
 - **Method 1 (Recommended):** Right-click on `STEP4_setup-test-repo.ps1` → "Run with PowerShell"
 - **Method 2 (Optional):** `.\STEP4_setup-test-repo.ps1`
+
+<details>
+<summary><strong>Step 4 Details - What it does and timing</strong></summary>
 
 **What it does:**
 - Clones repository branch `3.100/ac` to `TEST/` folder
@@ -282,6 +341,8 @@ Clone the Test/Acceptance environment:
 
 ⏱️ **Time Required:** This step can take up to 20 minutes due to the large size of the cloned repository.
 
+</details>
+
 
 ### Step 5: Setup PROD Repository
 
@@ -289,12 +350,17 @@ Clone the Production environment:
 - **Method 1 (Recommended):** Right-click on `STEP5_setup-prod-repo.ps1` → "Run with PowerShell"
 - **Method 2 (Optional):** `.\STEP5_setup-prod-repo.ps1`
 
+<details>
+<summary><strong>Step 5 Details - What it does and timing</strong></summary>
+
 **What it does:**
 - Clones repository branch `3.100/pd` to `PROD/` folder
 - Completes the three-environment setup
 - Configures repository for production branch tracking
 
 ⏱️ **Time Required:** This step can take up to 20 minutes due to the large size of the cloned repository.
+
+</details>
 
 
 ## 📅 Daily Updates
