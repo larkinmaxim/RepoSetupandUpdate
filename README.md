@@ -42,6 +42,8 @@ The setup process consists of 5 main steps:
 4. **TEST Repository Setup** - Clone and configure Test/Acceptance environment  
 5. **PROD Repository Setup** - Clone and configure Production environment
 
+⚠️ **Important:** Steps 3, 4, and 5 can each take up to 20 minutes due to the large size of the repositories being cloned.
+
 Additionally, there's a daily update script that automatically pulls the latest changes from all environments.
 
 ## 🔧 Prerequisites
@@ -83,7 +85,7 @@ Run the SSH key generation script:
 1. Copy the displayed public key
 2. Go to: https://gitlab.office.transporeon.com/-/profile/keys
 3. Click "Add SSH Key" and paste the public key
-4. Give it a descriptive title (e.g., "Development Workstation")
+4. Give it a descriptive title (e.g., "GitLab SSH Key")
 
 ### Step 2: Test GitLab Connection
 
@@ -116,17 +118,8 @@ Clone the Integration environment:
 - Sets up proper line ending handling
 - Shows clone progress with timing
 
-**Options:**
-```powershell
-# Custom branch
-.\STEP3_setup-int-repo.ps1 -BranchName "3.101/in"
+⏱️ **Time Required:** This step can take up to 20 minutes due to the large size of the cloned repository.
 
-# Custom folder name
-.\STEP3_setup-int-repo.ps1 -FolderName "Integration"
-
-# Custom repository URL
-.\STEP3_setup-int-repo.ps1 -RemoteUrl "https://gitlab.example.com/project.git"
-```
 
 ### Step 4: Setup TEST Repository
 
@@ -139,7 +132,8 @@ Clone the Test/Acceptance environment:
 - Configures Git settings for optimal performance
 - Handles existing directories with user confirmation
 
-**Options:** Same as Step 3, but defaults to branch `3.100/ac`
+⏱️ **Time Required:** This step can take up to 20 minutes due to the large size of the cloned repository.
+
 
 ### Step 5: Setup PROD Repository
 
@@ -152,7 +146,8 @@ Clone the Production environment:
 - Completes the three-environment setup
 - Configures repository for production branch tracking
 
-**Options:** Same as previous steps, but defaults to branch `3.100/pd`
+⏱️ **Time Required:** This step can take up to 20 minutes due to the large size of the cloned repository.
+
 
 ## 📅 Daily Updates
 
