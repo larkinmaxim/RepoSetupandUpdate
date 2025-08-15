@@ -94,6 +94,11 @@ try {
         git config core.filemode false
         git config gui.recentrepo $TargetPath
         
+        # Configure SSH authentication (switch from HTTPS to SSH)
+        Write-Host "Configuring SSH authentication..." -ForegroundColor Gray
+        git remote set-url origin git@gitlab.office.transporeon.com:Development/portfolio.git
+        Write-Host "[OK] Remote URL configured for SSH authentication" -ForegroundColor Green
+        
         Pop-Location
         Write-Host "[OK] Repository configured" -ForegroundColor Green
         
@@ -101,10 +106,10 @@ try {
         Write-Host "[FAIL] Repository clone failed (Exit code: $($cloneResult.ExitCode))" -ForegroundColor Red
         Write-Host "Common causes:" -ForegroundColor Yellow
         Write-Host "  - Network connectivity issues" -ForegroundColor Gray
-        Write-Host "  - SSH authentication problems" -ForegroundColor Gray
+        Write-Host "  - SSH authentication problems (ensure STEP1 & STEP2 completed successfully)" -ForegroundColor Gray
         Write-Host "  - Branch '$BranchName' does not exist" -ForegroundColor Gray
         Write-Host "  - Repository URL is incorrect" -ForegroundColor Gray
-        Write-Host "`nTip: Check your SSH keys and network connection manually" -ForegroundColor Cyan
+        Write-Host "`nTip: Run STEP1_sshKeygen.ps1 and STEP2_testGitLabConnection.ps1 first" -ForegroundColor Cyan
         Read-Host "Press Enter to exit"
         exit 1
     }

@@ -2,6 +2,37 @@
 
 This repository contains PowerShell scripts for setting up and managing multiple GitLab repository environments (INT, TEST, PROD) with automated SSH key generation and daily updates.
 
+## 📥 Getting Started
+
+First, clone this repository to your local machine:
+
+```bash
+git clone https://github.com/larkinmaxim/RepoSetupandUpdate.git .
+```
+
+This will clone the repository into your current directory. Make sure you're in the directory where you want to set up your development environment (e.g., `C:\DEV`).
+
+## ▶️ How to Run PowerShell Scripts
+
+There are two easy ways to run the PowerShell scripts in this repository:
+
+### Method 1: Right-Click (Easiest for Beginners)
+1. **Navigate** to the folder where you cloned the repository
+2. **Right-click** on any `.ps1` script file (e.g., `STEP1_sshKeygen.ps1`)
+3. **Select** "Run with PowerShell" from the context menu
+4. **Allow execution** if Windows asks for permission
+5. **Follow** the on-screen prompts
+
+### Method 2: PowerShell Command Line
+1. **Open** PowerShell as Administrator (recommended)
+2. **Navigate** to the repository folder: `cd C:\DEV` (or your chosen directory)
+3. **Run** the script: `.\STEP1_sshKeygen.ps1`
+
+> **💡 Tip:** If you get an execution policy error, run this command in PowerShell as Administrator:
+> ```powershell
+> Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+> ```
+
 ## 📋 Overview
 
 The setup process consists of 5 main steps:
@@ -29,10 +60,8 @@ Before running these scripts, ensure you have:
 ### Step 1: Generate SSH Keys
 
 Run the SSH key generation script:
-
-```powershell
-.\STEP1_sshKeygen.ps1
-```
+- **Method 1 (Recommended):** Right-click on `STEP1_sshKeygen.ps1` → "Run with PowerShell"
+- **Method 2 (Optional):** `.\STEP1_sshKeygen.ps1`
 
 **What it does:**
 - Generates a 4096-bit RSA SSH key pair
@@ -59,10 +88,8 @@ Run the SSH key generation script:
 ### Step 2: Test GitLab Connection
 
 Verify your SSH setup is working:
-
-```powershell
-.\STEP2_testGitLabConnection.ps1
-```
+- **Method 1 (Recommended):** Right-click on `STEP2_testGitLabConnection.ps1` → "Run with PowerShell"
+- **Method 2 (Optional):** `.\STEP2_testGitLabConnection.ps1`
 
 **What it does:**
 - Checks if SSH keys exist
@@ -80,10 +107,8 @@ GitLab Response: Welcome to GitLab, @username!
 ### Step 3: Setup INT Repository
 
 Clone the Integration environment:
-
-```powershell
-.\STEP3_setup-int-repo.ps1
-```
+- **Method 1 (Recommended):** Right-click on `STEP3_setup-int-repo.ps1` → "Run with PowerShell"
+- **Method 2 (Optional):** `.\STEP3_setup-int-repo.ps1`
 
 **What it does:**
 - Clones repository branch `3.100/in` to `INT/` folder
@@ -106,10 +131,8 @@ Clone the Integration environment:
 ### Step 4: Setup TEST Repository
 
 Clone the Test/Acceptance environment:
-
-```powershell
-.\STEP4_setup-test-repo.ps1
-```
+- **Method 1 (Recommended):** Right-click on `STEP4_setup-test-repo.ps1` → "Run with PowerShell"
+- **Method 2 (Optional):** `.\STEP4_setup-test-repo.ps1`
 
 **What it does:**
 - Clones repository branch `3.100/ac` to `TEST/` folder
@@ -121,10 +144,8 @@ Clone the Test/Acceptance environment:
 ### Step 5: Setup PROD Repository
 
 Clone the Production environment:
-
-```powershell
-.\STEP5_setup-prod-repo.ps1
-```
+- **Method 1 (Recommended):** Right-click on `STEP5_setup-prod-repo.ps1` → "Run with PowerShell"
+- **Method 2 (Optional):** `.\STEP5_setup-prod-repo.ps1`
 
 **What it does:**
 - Clones repository branch `3.100/pd` to `PROD/` folder
@@ -136,10 +157,8 @@ Clone the Production environment:
 ## 📅 Daily Updates
 
 Use the daily update script to keep all repositories synchronized:
-
-```powershell
-.\DailyUpdate.ps1
-```
+- **Method 1 (Recommended):** Right-click on `DailyUpdate.ps1` → "Run with PowerShell"
+- **Method 2 (Optional):** `.\DailyUpdate.ps1`
 
 **What it does:**
 - Automatically detects the latest version number
@@ -244,9 +263,8 @@ Override with the `-BranchName` parameter.
 ## 🔄 Daily Workflow
 
 1. **Morning Setup:**
-   ```powershell
-   .\DailyUpdate.ps1
-   ```
+   - **Method 1:** Right-click on `DailyUpdate.ps1` → "Run with PowerShell"
+   - **Method 2:** `.\DailyUpdate.ps1`
 
 2. **Development Work:**
    - Use TortoiseGit or command line for commits
