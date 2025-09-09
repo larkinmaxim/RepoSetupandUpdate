@@ -2,7 +2,7 @@
 
 This repository contains PowerShell scripts for setting up and managing multiple GitLab repository environments (INT, TEST, PROD) with automated SSH key generation and daily updates.
 
-## 📥 Getting Started
+## 📥 Getting Started !
 
 ### What is "Cloning a Repository"?
 Cloning means downloading a complete copy of this repository (all files and scripts) to your computer so you can use them locally.
