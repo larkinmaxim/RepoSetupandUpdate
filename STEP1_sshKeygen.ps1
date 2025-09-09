@@ -69,10 +69,9 @@ if ([string]::IsNullOrEmpty($Email)) {
             Wait-ForUser "Press ENTER to try again..."
             continue
         }
-        # Email validation regex
-        $emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-        if ($Email -notmatch $emailPattern) {
-            Write-Host "Invalid email format!" -ForegroundColor Red
+        # Simple email validation - check for @ and .
+        if (-not ($Email.Contains("@") -and $Email.Contains("."))) {
+            Write-Host "Invalid email format! Must contain @ and ." -ForegroundColor Red
             Wait-ForUser "Press ENTER to try again..."
             continue
         }
@@ -87,6 +86,7 @@ Write-Host ""
 $keyPath = "$env:USERPROFILE\.ssh\id_rsa"
 Write-Host "SSH key will be created at: $keyPath" -ForegroundColor Gray
 
+# Create .ssh directory if it doesn't exist
 try {
     if (-not (Test-Path "$env:USERPROFILE\.ssh")) {
         Write-Host "Creating .ssh directory..." -ForegroundColor Yellow
@@ -125,10 +125,9 @@ if (Test-Path "$keyPath*") {
 # Generate the SSH key
 Write-Host ""
 Write-Host "Generating SSH key..." -ForegroundColor Yellow
-$sshKeyGenArgs = @("-t", "rsa", "-b", "4096", "-C", $Email, "-f", $keyPath, "-N", '""')
 
 try {
-    $process = Start-Process -FilePath "ssh-keygen" -ArgumentList $sshKeyGenArgs -Wait -PassThru -NoNewWindow -RedirectStandardError $true -RedirectStandardOutput $true
+    $process = Start-Process -FilePath "ssh-keygen" -ArgumentList @("-t", "rsa", "-b", "4096", "-C", $Email, "-f", $keyPath, "-N", "") -Wait -PassThru -NoNewWindow
     $exitCode = $process.ExitCode
     
     if ($exitCode -ne 0) {
@@ -141,7 +140,8 @@ try {
     Exit-Gracefully -ExitCode 1
 }
 
-if ($exitCode -eq 0) {
+# Check if key generation was successful
+if (Test-Path "$keyPath.pub") {
     Write-Host "✓ SSH key generated successfully!" -ForegroundColor Green
     
     try {
@@ -162,7 +162,7 @@ if ($exitCode -eq 0) {
         Exit-Gracefully -ExitCode 1
     }
 } else {
-    Write-Host "ERROR: Key generation failed!" -ForegroundColor Red
+    Write-Host "ERROR: SSH key generation failed!" -ForegroundColor Red
     Exit-Gracefully -ExitCode 1
 }
 
