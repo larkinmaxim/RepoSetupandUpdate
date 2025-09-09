@@ -3,90 +3,34 @@ param(
     [switch]$Force
 )
 
-# Set error handling
-$ErrorActionPreference = "Stop"
+# ========================================================================
+# SSH Key Generator for GitLab Authentication  
+# ========================================================================
+# CONFIGURATION SECTION - Set your email here to avoid prompts each time
+$DEFAULT_EMAIL = ""  # Example: "john.doe@company.com"
+# ========================================================================
 
-# Trap any errors and keep window open
-trap {
-    Write-Host ""
-    Write-Host "ERROR OCCURRED:" -ForegroundColor Red
-    Write-Host $_.Exception.Message -ForegroundColor Red
-    Write-Host ""
-    Write-Host "Press ENTER to close..." -ForegroundColor Yellow
-    try { Read-Host } catch { Start-Sleep -Seconds 10 }
-    exit 1
-}
+Write-Host "=== SSH Key Generator for GitLab ===" -ForegroundColor Cyan
 
-# Function to exit gracefully
-function Exit-Gracefully {
-    param(
-        [int]$ExitCode = 0,
-        [string]$Message = "Press ENTER to close this window..."
-    )
-    Write-Host ""
-    Write-Host $Message -ForegroundColor Yellow
-    try {
-        Read-Host
-    } catch {
-        Start-Sleep -Seconds 10
-    }
-    exit $ExitCode
-}
-
-Write-Host "=== SSH Key Generator Starting ===" -ForegroundColor Cyan
-Write-Host "PowerShell Version: $($PSVersionTable.PSVersion)" -ForegroundColor Gray
-
-# Configuration
-$DEFAULT_EMAIL = ""
-
-# Check if ssh-keygen is available
-Write-Host "Checking for ssh-keygen..." -ForegroundColor Yellow
-try {
-    $sshKeygenPath = Get-Command ssh-keygen -ErrorAction Stop
-    Write-Host "ssh-keygen found at: $($sshKeygenPath.Source)" -ForegroundColor Green
-} catch {
-    Write-Host "ERROR: ssh-keygen not found!" -ForegroundColor Red
-    Write-Host "Please install Git for Windows or OpenSSH" -ForegroundColor Yellow
-    Exit-Gracefully -ExitCode 1
-}
-
-# Get email
+# Use default email if parameter is empty
 if ([string]::IsNullOrEmpty($Email)) {
     $Email = $DEFAULT_EMAIL
 }
 
+# Get email if not provided in config or parameter
 if ([string]::IsNullOrEmpty($Email)) {
-    Write-Host "Email address is required" -ForegroundColor Yellow
-    Write-Host ""
-    
-    $attempts = 0
     do {
-        $attempts++
-        if ($attempts -gt 5) {
-            Write-Host "Too many attempts. Exiting." -ForegroundColor Red
-            Exit-Gracefully -ExitCode 1
-        }
-        
-        try {
-            $Email = Read-Host "Enter your email address"
-        } catch {
-            Write-Host "Failed to read input. Trying again..." -ForegroundColor Red
-            Start-Sleep -Seconds 2
-            continue
-        }
-        
+        $Email = Read-Host "Enter your email address"
         if ([string]::IsNullOrEmpty($Email)) {
             Write-Host "Email cannot be empty!" -ForegroundColor Red
             Write-Host "Press ENTER to try again..." -ForegroundColor Yellow
-            try { Read-Host } catch { Start-Sleep -Seconds 2 }
+            Read-Host
             continue
         }
-        
-        # Simple email check
-        if (-not ($Email.Contains("@") -and $Email.Contains("."))) {
-            Write-Host "Invalid email format! Must contain @ and ." -ForegroundColor Red
+        if ($Email -notmatch "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$") {
+            Write-Host "Invalid email format!" -ForegroundColor Red
             Write-Host "Press ENTER to try again..." -ForegroundColor Yellow
-            try { Read-Host } catch { Start-Sleep -Seconds 2 }
+            Read-Host
             continue
         }
         break
@@ -97,104 +41,79 @@ Write-Host "Using email: $Email" -ForegroundColor Cyan
 
 # Setup paths
 $keyPath = "$env:USERPROFILE\.ssh\id_rsa"
-Write-Host "SSH key will be created at: $keyPath" -ForegroundColor Gray
-
-# Create .ssh directory
-Write-Host "Checking .ssh directory..." -ForegroundColor Yellow
-try {
-    $sshDir = "$env:USERPROFILE\.ssh"
-    if (-not (Test-Path $sshDir)) {
-        Write-Host "Creating .ssh directory..." -ForegroundColor Yellow
-        New-Item -ItemType Directory -Path $sshDir -Force | Out-Null
-        Write-Host ".ssh directory created" -ForegroundColor Green
-    } else {
-        Write-Host ".ssh directory exists" -ForegroundColor Green
-    }
-} catch {
-    Write-Host "ERROR: Could not create .ssh directory!" -ForegroundColor Red
-    Write-Host $_.Exception.Message -ForegroundColor Red
-    Exit-Gracefully -ExitCode 1
+if (-not (Test-Path "$env:USERPROFILE\.ssh")) {
+    New-Item -ItemType Directory -Path "$env:USERPROFILE\.ssh" -Force | Out-Null
 }
 
 # Handle existing keys
-Write-Host "Checking for existing SSH keys..." -ForegroundColor Yellow
 if (Test-Path "$keyPath*") {
-    Write-Host ""
-    Write-Host "WARNING: SSH key files already exist!" -ForegroundColor Yellow
-    
     if (-not $Force) {
-        try {
-            $choice = Read-Host "SSH key already exists. Overwrite? (y/N)"
-        } catch {
-            Write-Host "Failed to read input, assuming No" -ForegroundColor Yellow
-            $choice = "N"
-        }
-        
+        $choice = Read-Host "SSH key already exists. Overwrite? (y/N)"
         if ($choice -ne "y" -and $choice -ne "Y") {
-            Write-Host "Operation cancelled by user" -ForegroundColor Yellow
-            Exit-Gracefully -ExitCode 0
+            Write-Host "Operation cancelled" -ForegroundColor Yellow
+            Write-Host "Press ENTER to close this window..." -ForegroundColor Yellow
+            Read-Host
+            exit 0
         }
     }
-    
-    try {
-        Remove-Item "$keyPath*" -Force
-        Write-Host "Existing SSH keys removed" -ForegroundColor Green
-    } catch {
-        Write-Host "ERROR: Could not remove existing SSH keys!" -ForegroundColor Red
-        Write-Host $_.Exception.Message -ForegroundColor Red
-        Exit-Gracefully -ExitCode 1
-    }
-} else {
-    Write-Host "No existing SSH keys found" -ForegroundColor Green
+    Remove-Item "$keyPath*" -Force
 }
 
-# Generate SSH key
-Write-Host ""
+# Generate the SSH key
 Write-Host "Generating SSH key..." -ForegroundColor Yellow
+Write-Host "This may take a moment..." -ForegroundColor Gray
+
+# Use a more reliable method - create a batch file to handle the command
+$batchContent = @"
+@echo off
+echo Generating SSH key...
+ssh-keygen -t rsa -b 4096 -C "$Email" -f "$keyPath" -q -N ""
+echo Exit code: %ERRORLEVEL%
+"@
+
+$batchFile = "$env:TEMP\ssh_keygen_temp.bat"
+$batchContent | Out-File -FilePath $batchFile -Encoding ASCII
 
 try {
-    $process = Start-Process -FilePath "ssh-keygen" -ArgumentList @("-t", "rsa", "-b", "4096", "-C", $Email, "-f", $keyPath, "-N", "") -Wait -PassThru -NoNewWindow
+    $process = Start-Process -FilePath $batchFile -Wait -PassThru -NoNewWindow
     $exitCode = $process.ExitCode
-    Write-Host "ssh-keygen exit code: $exitCode" -ForegroundColor Gray
-    
-    if ($exitCode -ne 0) {
-        Write-Host "ERROR: ssh-keygen failed with exit code $exitCode" -ForegroundColor Red
-        Exit-Gracefully -ExitCode 1
-    }
+    Remove-Item $batchFile -Force -ErrorAction SilentlyContinue
 } catch {
-    Write-Host "ERROR: Failed to execute ssh-keygen!" -ForegroundColor Red
-    Write-Host $_.Exception.Message -ForegroundColor Red
-    Exit-Gracefully -ExitCode 1
+    Write-Host "Batch method failed, trying direct execution..." -ForegroundColor Yellow
+    Remove-Item $batchFile -Force -ErrorAction SilentlyContinue
+    
+    # Fallback: Try without the empty passphrase parameter
+    try {
+        $process = Start-Process -FilePath "ssh-keygen" -ArgumentList @("-t", "rsa", "-b", "4096", "-C", $Email, "-f", $keyPath, "-q") -Wait -PassThru -NoNewWindow
+        $exitCode = $process.ExitCode
+    } catch {
+        $exitCode = 1
+    }
 }
 
-# Check if key was created
-Write-Host "Checking if SSH key was created..." -ForegroundColor Yellow
-if (Test-Path "$keyPath.pub") {
+if ($exitCode -eq 0) {
     Write-Host "SSH key generated successfully!" -ForegroundColor Green
     
-    try {
-        $publicKey = Get-Content "$keyPath.pub" -Raw
-        Write-Host ""
-        Write-Host "=== PUBLIC KEY ===" -ForegroundColor Cyan
-        Write-Host $publicKey.Trim()
-        Write-Host ""
-        Write-Host "Next steps:" -ForegroundColor Yellow
-        Write-Host "1. Copy the public key above" -ForegroundColor Gray
-        Write-Host "2. Go to: https://gitlab.office.transporeon.com/-/profile/keys" -ForegroundColor Gray
-        Write-Host "3. Click 'Add SSH Key' and paste the key" -ForegroundColor Gray
-        Write-Host ""
-        Write-Host "Test connection: ssh -T git@gitlab.office.transporeon.com" -ForegroundColor Gray
-    } catch {
-        Write-Host "ERROR: Could not read the generated public key!" -ForegroundColor Red
-        Write-Host $_.Exception.Message -ForegroundColor Red
-        Exit-Gracefully -ExitCode 1
-    }
+    $publicKey = Get-Content "$keyPath.pub" -Raw
+    Write-Host ""
+    Write-Host "=== PUBLIC KEY ===" -ForegroundColor Cyan
+    Write-Host $publicKey.Trim()
+    Write-Host ""
+    Write-Host "Next steps:" -ForegroundColor Yellow
+    Write-Host "1. Copy the public key above" -ForegroundColor Gray
+    Write-Host "2. Go to: https://gitlab.office.transporeon.com/-/profile/keys" -ForegroundColor Gray
+    Write-Host "3. Click 'Add SSH Key' and paste the key" -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "Test connection: ssh -T git@gitlab.office.transporeon.com" -ForegroundColor Gray
 } else {
-    Write-Host "ERROR: SSH key generation failed!" -ForegroundColor Red
-    Write-Host "Expected location: $keyPath.pub" -ForegroundColor Gray
-    Exit-Gracefully -ExitCode 1
+    Write-Host "ERROR: Key generation failed!" -ForegroundColor Red
+    Write-Host "Press ENTER to close this window..." -ForegroundColor Yellow
+    Read-Host
+    exit 1
 }
 
 Write-Host ""
 Write-Host "Setup complete!" -ForegroundColor Green
-Exit-Gracefully -ExitCode 0
+Write-Host ""
+Write-Host "Press ENTER to close this window..." -ForegroundColor Yellow
+Read-Host
