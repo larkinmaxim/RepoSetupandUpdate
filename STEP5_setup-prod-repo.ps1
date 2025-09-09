@@ -20,7 +20,25 @@ Write-Host "This script will set up the PROD repository for branch: $BranchName"
 
 # Variables using script location as base directory (PRD requirement)
 $BaseDirectory = $PSScriptRoot
+if ([string]::IsNullOrEmpty($BaseDirectory)) {
+    $BaseDirectory = Get-Location
+    Write-Host "Warning: PSScriptRoot is null, using current location: $BaseDirectory" -ForegroundColor Yellow
+}
+
+if ([string]::IsNullOrEmpty($FolderName)) {
+    Write-Host "Error: FolderName parameter is null or empty" -ForegroundColor Red
+    Read-Host "Press Enter to exit"
+    exit 1
+}
+
 $TargetPath = Join-Path $BaseDirectory $FolderName
+
+# Validate that TargetPath was created successfully
+if ([string]::IsNullOrEmpty($TargetPath)) {
+    Write-Host "Error: Failed to create target path from BaseDirectory '$BaseDirectory' and FolderName '$FolderName'" -ForegroundColor Red
+    Read-Host "Press Enter to exit"
+    exit 1
+}
 
 Write-Host "Base Directory: $BaseDirectory" -ForegroundColor Cyan
 Write-Host "Target Path: $TargetPath" -ForegroundColor Cyan
