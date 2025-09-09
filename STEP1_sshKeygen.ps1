@@ -69,7 +69,9 @@ if ([string]::IsNullOrEmpty($Email)) {
             Wait-ForUser "Press ENTER to try again..."
             continue
         }
-        if ($Email -notmatch "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$") {
+        # Email validation regex
+        $emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+        if ($Email -notmatch $emailPattern) {
             Write-Host "Invalid email format!" -ForegroundColor Red
             Wait-ForUser "Press ENTER to try again..."
             continue
