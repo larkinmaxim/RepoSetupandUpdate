@@ -38,6 +38,42 @@ try {
 }
 
 Write-Host ""
+Write-Host "Checking GitLab host key..." -ForegroundColor Yellow
+
+# Ensure known_hosts file exists
+$knownHostsPath = "$env:USERPROFILE\.ssh\known_hosts"
+if (-not (Test-Path $knownHostsPath)) {
+    Write-Host "Creating known_hosts file..." -ForegroundColor Gray
+    New-Item -ItemType File -Path $knownHostsPath -Force | Out-Null
+}
+
+# Check if GitLab host key is already known
+$gitlabHost = "gitlab.office.transporeon.com"
+$hostKeyExists = $false
+
+if (Test-Path $knownHostsPath) {
+    $knownHosts = Get-Content $knownHostsPath -ErrorAction SilentlyContinue
+    $hostKeyExists = $knownHosts | Where-Object { $_ -like "*$gitlabHost*" }
+}
+
+if (-not $hostKeyExists) {
+    Write-Host "Adding GitLab host key to known_hosts..." -ForegroundColor Yellow
+    try {
+        $hostKey = ssh-keyscan -t rsa $gitlabHost 2>$null
+        if ($hostKey) {
+            $hostKey | Out-File -FilePath $knownHostsPath -Append -Encoding UTF8
+            Write-Host "[OK] GitLab host key added successfully!" -ForegroundColor Green
+        } else {
+            Write-Host "[WARNING] Could not retrieve host key automatically" -ForegroundColor Yellow
+        }
+    } catch {
+        Write-Host "[WARNING] Could not add host key automatically" -ForegroundColor Yellow
+    }
+} else {
+    Write-Host "[OK] GitLab host key already known" -ForegroundColor Green
+}
+
+Write-Host ""
 Write-Host "Testing connection to GitLab..." -ForegroundColor Yellow
 
 # Test the connection
@@ -63,10 +99,26 @@ if ($exitCode -eq 0 -and $result -like "*Welcome to GitLab*") {
     Write-Host "[ERROR] CONNECTION FAILED" -ForegroundColor Red
     Write-Host "Cannot connect to GitLab server." -ForegroundColor Red
     Write-Host "Check your network connection or VPN status." -ForegroundColor Yellow
+} elseif ($result -like "*Host key verification failed*") {
+    Write-Host "[ERROR] HOST KEY VERIFICATION FAILED" -ForegroundColor Red
+    Write-Host "The automatic host key addition didn't work." -ForegroundColor Red
+    Write-Host ""
+    Write-Host "Manual fix:" -ForegroundColor Yellow
+    Write-Host "Run this command and type 'yes' when prompted:" -ForegroundColor Gray
+    Write-Host "ssh -T git@gitlab.office.transporeon.com" -ForegroundColor White
 } else {
     Write-Host "[WARNING] UNKNOWN RESULT" -ForegroundColor Yellow
     Write-Host "Exit code: $exitCode" -ForegroundColor Gray
     Write-Host "Output: $result" -ForegroundColor Gray
+    
+    # Additional troubleshooting for common issues
+    if ($result -like "*ssh: connect to host*") {
+        Write-Host ""
+        Write-Host "Possible issues:" -ForegroundColor Yellow
+        Write-Host "- Network connectivity problems" -ForegroundColor Gray
+        Write-Host "- VPN not connected" -ForegroundColor Gray
+        Write-Host "- Firewall blocking SSH (port 22)" -ForegroundColor Gray
+    }
 }
 
 Write-Host ""
