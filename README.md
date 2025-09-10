@@ -519,4 +519,82 @@ If you encounter issues:
 
 ---
 
+## 📚 Comprehensive Documentation
+
+This repository includes extensive documentation for all public APIs, functions, and components:
+
+### 📖 Documentation Files
+
+| Document | Description | Audience |
+|----------|-------------|----------|
+| **[API_DOCUMENTATION.md](API_DOCUMENTATION.md)** | Complete API reference with parameters, examples, and usage patterns | Developers & Integrators |
+| **[FUNCTION_REFERENCE.md](FUNCTION_REFERENCE.md)** | Detailed function specifications and implementation details | Advanced Users & Contributors |
+| **[USAGE_EXAMPLES.md](USAGE_EXAMPLES.md)** | Practical examples, integration scenarios, and automation patterns | All Users |
+| **[COMPONENT_REFERENCE.md](COMPONENT_REFERENCE.md)** | Technical architecture, data flows, and extension points | System Architects & Developers |
+
+### 🔍 Quick Documentation Navigation
+
+#### For New Users
+- Start with the [Getting Started](#-getting-started-) section above
+- Review [USAGE_EXAMPLES.md](USAGE_EXAMPLES.md) for practical examples
+- Check [API_DOCUMENTATION.md](API_DOCUMENTATION.md) for parameter details
+
+#### For Developers
+- **API Reference**: [API_DOCUMENTATION.md](API_DOCUMENTATION.md) - Complete API specifications
+- **Function Details**: [FUNCTION_REFERENCE.md](FUNCTION_REFERENCE.md) - Internal function documentation
+- **Architecture**: [COMPONENT_REFERENCE.md](COMPONENT_REFERENCE.md) - System architecture and extension points
+
+#### For System Integrators
+- **Integration Examples**: [USAGE_EXAMPLES.md](USAGE_EXAMPLES.md#integration-scenarios) - CI/CD, scheduling, and automation
+- **Custom Configurations**: [USAGE_EXAMPLES.md](USAGE_EXAMPLES.md#custom-configuration-examples) - Multi-team and environment-specific setups
+- **Extension Points**: [COMPONENT_REFERENCE.md](COMPONENT_REFERENCE.md#extension-points) - Plugin architecture and customization
+
+### 📋 Documentation Coverage
+
+The documentation covers:
+
+- ✅ **All 6 PowerShell Scripts** - Complete parameter reference and usage examples
+- ✅ **All 3 Core Functions** - `Invoke-GitCommand`, `Get-LatestVersionNumber`, `Update-Repository`
+- ✅ **Configuration Objects** - Repository configuration and customization options
+- ✅ **Error Handling Patterns** - Comprehensive error scenarios and recovery procedures
+- ✅ **Integration Scenarios** - CI/CD, scheduled tasks, Docker, and enterprise setups
+- ✅ **Security Model** - SSH key management, credential handling, and input validation
+- ✅ **Performance Optimization** - Git operations, progress tracking, and memory management
+- ✅ **Extension Architecture** - Plugin system and customization points
+
+### 🚀 Quick API Reference
+
+#### Core Scripts
+```powershell
+# SSH Key Generation
+.\STEP1_sshKeygen.ps1 -Email "user@company.com" -Force
+
+# Connection Testing  
+.\STEP2_testGitLabConnection.ps1
+
+# Repository Setup
+.\STEP3_setup-int-repo.ps1 -BranchName "3.100/in" -FolderName "INT"
+.\STEP4_setup-test-repo.ps1 -BranchName "3.100/ac" -FolderName "TEST"  
+.\STEP5_setup-prod-repo.ps1 -BranchName "3.100/pd" -FolderName "PROD"
+
+# Daily Updates
+.\DailyUpdate.ps1
+```
+
+#### Core Functions
+```powershell
+# Execute Git commands with error filtering
+Invoke-GitCommand "git fetch origin"
+
+# Get latest version from remote branches
+$version = Get-LatestVersionNumber
+
+# Update single repository with progress tracking
+Update-Repository -FolderPath "INT" -VersionNumber "3.100" -BranchSuffix "in" -RepoIndex 1 -TotalRepos 3
+```
+
+For complete API documentation with all parameters, return values, and examples, see [API_DOCUMENTATION.md](API_DOCUMENTATION.md).
+
+---
+
 **Happy coding!** 🚀 
