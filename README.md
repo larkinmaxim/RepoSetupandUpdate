@@ -239,7 +239,7 @@ Additionally, there's a daily update script that automatically pulls the latest 
 
 Comprehensive documentation for all scripts (parameters, behavior, and examples) is available here:
 
-- See API Docs: docs/API/README.md
+- See API Docs: docs/README.md
 
 ## 🔧 Prerequisites
 
