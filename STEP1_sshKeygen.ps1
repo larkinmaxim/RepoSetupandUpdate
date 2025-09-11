@@ -101,7 +101,7 @@ if ($exitCode -eq 0) {
     Write-Host ""
     Write-Host "Next steps:" -ForegroundColor Yellow
     Write-Host "1. Copy the public key above" -ForegroundColor Gray
-    Write-Host "2. Go to: https://gitlab.office.transporeon.com/-/profile/keys" -ForegroundColor Gray
+    Write-Host "2. Go to: https://gitlab.office.transporeon.com/-/user_settings/ssh_keys" -ForegroundColor Gray
     Write-Host "3. Click 'Add SSH Key' and paste the key" -ForegroundColor Gray
     Write-Host ""
     Write-Host "Test connection: ssh -T git@gitlab.office.transporeon.com" -ForegroundColor Gray
