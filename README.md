@@ -235,6 +235,12 @@ The setup process consists of 5 main steps:
 
 Additionally, there's a daily update script that automatically pulls the latest changes from all environments.
 
+## 📚 API Documentation
+
+Comprehensive documentation for all scripts (parameters, behavior, and examples) is available here:
+
+- See API Docs: docs/README.md
+
 ## 🔧 Prerequisites
 
 Before running these scripts, ensure you have:
