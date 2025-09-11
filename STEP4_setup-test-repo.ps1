@@ -215,7 +215,7 @@ if (Get-Command "TortoiseGitProc.exe" -ErrorAction SilentlyContinue) {
 
 
 Write-Host "`nTEST setup completed successfully!" -ForegroundColor Green
-Write-Host "You can now test Git operations and TortoiseGit integration." -ForegroundColor Gray
+Write-Host "You can now use Git operations and TortoiseGit integration." -ForegroundColor Gray
 
 Write-Host "`nPress any key to close this window..." -ForegroundColor Yellow
 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")

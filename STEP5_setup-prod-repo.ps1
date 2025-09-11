@@ -215,8 +215,8 @@ if (Get-Command "TortoiseGitProc.exe" -ErrorAction SilentlyContinue) {
 
 
 Write-Host "`nPROD setup completed successfully!" -ForegroundColor Green
-Write-Host "You can now test Git operations and TortoiseGit integration." -ForegroundColor Gray
-Write-Host "All three repository setups (INT, TEST, PROD) are now available." -ForegroundColor Gray
+Write-Host "You can now use Git operations and TortoiseGit integration." -ForegroundColor Gray
+
 
 Read-Host "`nPress Enter to exit"
 exit 0 
