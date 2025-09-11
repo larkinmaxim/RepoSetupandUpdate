@@ -4,6 +4,35 @@ param(
     [string]$FolderName = "PROD"
 )
 
+# IMMEDIATE DEBUG - This should show even if there are errors later
+Write-Host "=== SCRIPT STARTED ===" -ForegroundColor Magenta
+Write-Host "PowerShell Version: $($PSVersionTable.PSVersion)" -ForegroundColor Magenta
+Write-Host "Execution Policy: $(Get-ExecutionPolicy)" -ForegroundColor Magenta
+Write-Host "Current Location: $(Get-Location)" -ForegroundColor Magenta
+Write-Host "Script Root: $PSScriptRoot" -ForegroundColor Magenta
+
+# Test if we can pause immediately
+try {
+    Write-Host "Testing pause functionality..." -ForegroundColor Magenta
+    Start-Sleep -Seconds 1
+    Write-Host "Pause test successful" -ForegroundColor Green
+} catch {
+    Write-Host "ERROR in pause test: $($_.Exception.Message)" -ForegroundColor Red
+}
+
+# Trap any terminating errors
+trap {
+    Write-Host "TRAPPED ERROR: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "Error occurred at line: $($_.InvocationInfo.ScriptLineNumber)" -ForegroundColor Red
+    Write-Host "Press any key to close..." -ForegroundColor Yellow
+    try {
+        $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+    } catch {
+        Read-Host "Press Enter to continue"
+    }
+    exit 1
+}
+
 # Script for setting up PROD repository only
 # Follows PRD requirements for base directory - direct clone without validation
 #
@@ -15,8 +44,32 @@ param(
 #
 # NOTE: Ctrl+C now works properly to cancel the clone operation!
 
+# Function to handle errors and pause before exit
+function Exit-WithPause {
+    param(
+        [int]$ExitCode = 1,
+        [string]$Message = "Script encountered an error"
+    )
+    Write-Host "`n$Message" -ForegroundColor Red
+    Write-Host "Press any key to close this window..." -ForegroundColor Yellow
+    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+    exit $ExitCode
+}
+
+# Function for debug output
+function Write-Debug {
+    param([string]$Message)
+    Write-Host "[DEBUG] $Message" -ForegroundColor Magenta
+}
+
 Write-Host "=== PROD REPOSITORY SETUP ===" -ForegroundColor Green
 Write-Host "This script will set up the PROD repository for branch: $BranchName" -ForegroundColor Cyan
+
+# Debug: Show all parameters
+Write-Debug "Script parameters:"
+Write-Debug "  RemoteUrl: '$RemoteUrl'"
+Write-Debug "  BranchName: '$BranchName'"  
+Write-Debug "  FolderName: '$FolderName'"
 
 # Variables using script location as base directory (PRD requirement)
 $BaseDirectory = $PSScriptRoot
@@ -25,19 +78,18 @@ if ([string]::IsNullOrEmpty($BaseDirectory)) {
     Write-Host "Warning: PSScriptRoot is null, using current location: $BaseDirectory" -ForegroundColor Yellow
 }
 
+Write-Debug "BaseDirectory determined: '$BaseDirectory'"
+
 if ([string]::IsNullOrEmpty($FolderName)) {
-    Write-Host "Error: FolderName parameter is null or empty" -ForegroundColor Red
-    Read-Host "Press Enter to exit"
-    exit 1
+    Exit-WithPause -Message "Error: FolderName parameter is null or empty. Expected value: 'PROD'"
 }
 
 $TargetPath = Join-Path $BaseDirectory $FolderName
+Write-Debug "TargetPath created: '$TargetPath'"
 
 # Validate that TargetPath was created successfully
 if ([string]::IsNullOrEmpty($TargetPath)) {
-    Write-Host "Error: Failed to create target path from BaseDirectory '$BaseDirectory' and FolderName '$FolderName'" -ForegroundColor Red
-    Read-Host "Press Enter to exit"
-    exit 1
+    Exit-WithPause -Message "Error: Failed to create target path from BaseDirectory '$BaseDirectory' and FolderName '$FolderName'"
 }
 
 Write-Host "Base Directory: $BaseDirectory" -ForegroundColor Cyan
@@ -48,8 +100,9 @@ Write-Host "Branch: $BranchName" -ForegroundColor Cyan
 # Ask to continue
 $continue = Read-Host "`nContinue with PROD setup? (Y/N)"
 if ($continue -notmatch "^[Yy]") {
-    Write-Host "Cancelled" -ForegroundColor Yellow
-    Read-Host "Press Enter to exit"
+    Write-Host "Cancelled by user" -ForegroundColor Yellow
+    Write-Host "Press any key to close this window..." -ForegroundColor Yellow
+    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
     exit 0
 }
 

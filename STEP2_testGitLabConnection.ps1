@@ -94,7 +94,7 @@ if ($exitCode -eq 0 -and $result -like "*Welcome to GitLab*") {
     Write-Host ""
     Write-Host "To fix this:" -ForegroundColor Yellow
     Write-Host "1. Copy your public key: Get-Content '$publicKeyPath'" -ForegroundColor Gray
-    Write-Host "2. Add it to GitLab: https://gitlab.office.transporeon.com/-/profile/keys" -ForegroundColor Gray
+    Write-Host "2. Add it to GitLab: https://gitlab.office.transporeon.com/-/user_settings/ssh_keys" -ForegroundColor Gray
 } elseif ($result -like "*Connection refused*" -or $result -like "*Connection timed out*") {
     Write-Host "[ERROR] CONNECTION FAILED" -ForegroundColor Red
     Write-Host "Cannot connect to GitLab server." -ForegroundColor Red
