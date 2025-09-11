@@ -74,6 +74,11 @@ Write-Host "Cloning TEST repository (branch: $BranchName)..." -ForegroundColor C
 Write-Host "This may take several minutes for large repositories..." -ForegroundColor Gray
 Write-Host "Press Ctrl+C at any time to cancel the operation" -ForegroundColor Yellow
 
+# Enable Git long path support for Windows (fixes "Filename too long" errors)
+Write-Host "Configuring Git for long path support..." -ForegroundColor Gray
+git config --global core.longpaths true
+Write-Host "[OK] Git long path support enabled" -ForegroundColor Green
+
 # Simple clone with real-time Git progress (Ctrl+C responsive)
 try {
     Write-Host "`n[STARTING] Clone operation..." -ForegroundColor Yellow
