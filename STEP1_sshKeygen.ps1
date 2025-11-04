@@ -4,13 +4,13 @@ param(
 )
 
 # ========================================================================
-# SSH Key Generator for GitLab Authentication  
+# SSH Key Generator for GitHub Authentication  
 # ========================================================================
 # CONFIGURATION SECTION - Set your email here to avoid prompts each time
 $DEFAULT_EMAIL = ""  # Example: "john.doe@company.com"
 # ========================================================================
 
-Write-Host "=== SSH Key Generator for GitLab ===" -ForegroundColor Cyan
+Write-Host "=== SSH Key Generator for GitHub ===" -ForegroundColor Cyan
 
 # Use default email if parameter is empty
 if ([string]::IsNullOrEmpty($Email)) {
@@ -101,10 +101,10 @@ if ($exitCode -eq 0) {
     Write-Host ""
     Write-Host "Next steps:" -ForegroundColor Yellow
     Write-Host "1. Copy the public key above" -ForegroundColor Gray
-    Write-Host "2. Go to: https://gitlab.office.transporeon.com/-/user_settings/ssh_keys" -ForegroundColor Gray
-    Write-Host "3. Click 'Add SSH Key' and paste the key" -ForegroundColor Gray
+    Write-Host "2. Go to: https://github.com/settings/keys" -ForegroundColor Gray
+    Write-Host "3. Click 'New SSH Key' and paste the key" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "Test connection: ssh -T git@gitlab.office.transporeon.com" -ForegroundColor Gray
+    Write-Host "Test connection: ssh -T git@github.com" -ForegroundColor Gray
 } else {
     Write-Host "ERROR: Key generation failed!" -ForegroundColor Red
     Write-Host "Press ENTER to close this window..." -ForegroundColor Yellow

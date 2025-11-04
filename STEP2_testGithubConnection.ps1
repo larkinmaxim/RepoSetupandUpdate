@@ -1,10 +1,10 @@
 # ========================================================================
-# GitLab SSH Connection Test Script
+# GitHub SSH Connection Test Script
 # ========================================================================
-# This script tests your SSH connection to GitLab and displays the results
+# This script tests your SSH connection to GitHub and displays the results
 # ========================================================================
 
-Write-Host "=== GitLab SSH Connection Test ===" -ForegroundColor Cyan
+Write-Host "=== GitHub SSH Connection Test ===" -ForegroundColor Cyan
 Write-Host ""
 
 # Check if SSH key exists
@@ -38,7 +38,7 @@ try {
 }
 
 Write-Host ""
-Write-Host "Checking GitLab host key..." -ForegroundColor Yellow
+Write-Host "Checking GitHub host key..." -ForegroundColor Yellow
 
 # Ensure known_hosts file exists
 $knownHostsPath = "$env:USERPROFILE\.ssh\known_hosts"
@@ -47,22 +47,22 @@ if (-not (Test-Path $knownHostsPath)) {
     New-Item -ItemType File -Path $knownHostsPath -Force | Out-Null
 }
 
-# Check if GitLab host key is already known
-$gitlabHost = "gitlab.office.transporeon.com"
+# Check if GitHub host key is already known
+$githubHost = "github.com"
 $hostKeyExists = $false
 
 if (Test-Path $knownHostsPath) {
     $knownHosts = Get-Content $knownHostsPath -ErrorAction SilentlyContinue
-    $hostKeyExists = $knownHosts | Where-Object { $_ -like "*$gitlabHost*" }
+    $hostKeyExists = $knownHosts | Where-Object { $_ -like "*$githubHost*" }
 }
 
 if (-not $hostKeyExists) {
-    Write-Host "Adding GitLab host key to known_hosts..." -ForegroundColor Yellow
+    Write-Host "Adding GitHub host key to known_hosts..." -ForegroundColor Yellow
     try {
-        $hostKey = ssh-keyscan -t rsa $gitlabHost 2>$null
+        $hostKey = ssh-keyscan -t rsa $githubHost 2>$null
         if ($hostKey) {
             $hostKey | Out-File -FilePath $knownHostsPath -Append -Encoding UTF8
-            Write-Host "[OK] GitLab host key added successfully!" -ForegroundColor Green
+            Write-Host "[OK] GitHub host key added successfully!" -ForegroundColor Green
         } else {
             Write-Host "[WARNING] Could not retrieve host key automatically" -ForegroundColor Yellow
         }
@@ -70,34 +70,34 @@ if (-not $hostKeyExists) {
         Write-Host "[WARNING] Could not add host key automatically" -ForegroundColor Yellow
     }
 } else {
-    Write-Host "[OK] GitLab host key already known" -ForegroundColor Green
+    Write-Host "[OK] GitHub host key already known" -ForegroundColor Green
 }
 
 Write-Host ""
-Write-Host "Testing connection to GitLab..." -ForegroundColor Yellow
+Write-Host "Testing connection to GitHub..." -ForegroundColor Yellow
 
 # Test the connection
-$result = ssh -o ConnectTimeout=10 -o BatchMode=yes -T git@gitlab.office.transporeon.com 2>&1
+$result = ssh -o ConnectTimeout=10 -o BatchMode=yes -T git@github.com 2>&1
 $exitCode = $LASTEXITCODE
 
 Write-Host ""
 
-if ($exitCode -eq 0 -and $result -like "*Welcome to GitLab*") {
+if ($result -like "*successfully authenticated*" -or $result -like "*You've successfully authenticated*") {
     Write-Host "[SUCCESS] Connection Working!" -ForegroundColor Green
-    Write-Host "SSH connection to GitLab is working perfectly!" -ForegroundColor Green
+    Write-Host "SSH connection to GitHub is working perfectly!" -ForegroundColor Green
     Write-Host ""
-    Write-Host "GitLab Response:" -ForegroundColor Cyan
+    Write-Host "GitHub Response:" -ForegroundColor Cyan
     Write-Host $result -ForegroundColor White
 } elseif ($result -like "*Permission denied*") {
     Write-Host "[ERROR] AUTHENTICATION FAILED" -ForegroundColor Red
-    Write-Host "Your SSH key is not added to GitLab or is incorrect." -ForegroundColor Red
+    Write-Host "Your SSH key is not added to GitHub or is incorrect." -ForegroundColor Red
     Write-Host ""
     Write-Host "To fix this:" -ForegroundColor Yellow
     Write-Host "1. Copy your public key: Get-Content '$publicKeyPath'" -ForegroundColor Gray
-    Write-Host "2. Add it to GitLab: https://gitlab.office.transporeon.com/-/user_settings/ssh_keys" -ForegroundColor Gray
+    Write-Host "2. Add it to GitHub: https://github.com/settings/keys" -ForegroundColor Gray
 } elseif ($result -like "*Connection refused*" -or $result -like "*Connection timed out*") {
     Write-Host "[ERROR] CONNECTION FAILED" -ForegroundColor Red
-    Write-Host "Cannot connect to GitLab server." -ForegroundColor Red
+    Write-Host "Cannot connect to GitHub server." -ForegroundColor Red
     Write-Host "Check your network connection or VPN status." -ForegroundColor Yellow
 } elseif ($result -like "*Host key verification failed*") {
     Write-Host "[ERROR] HOST KEY VERIFICATION FAILED" -ForegroundColor Red
@@ -105,7 +105,7 @@ if ($exitCode -eq 0 -and $result -like "*Welcome to GitLab*") {
     Write-Host ""
     Write-Host "Manual fix:" -ForegroundColor Yellow
     Write-Host "Run this command and type 'yes' when prompted:" -ForegroundColor Gray
-    Write-Host "ssh -T git@gitlab.office.transporeon.com" -ForegroundColor White
+    Write-Host "ssh -T git@github.com" -ForegroundColor White
 } else {
     Write-Host "[WARNING] UNKNOWN RESULT" -ForegroundColor Yellow
     Write-Host "Exit code: $exitCode" -ForegroundColor Gray

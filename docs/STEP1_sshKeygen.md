@@ -1,6 +1,6 @@
 # STEP1_sshKeygen.ps1 — SSH Key Generator
 
-Generates an RSA 4096-bit SSH keypair and prints the public key for GitLab registration.
+Generates an RSA 4096-bit SSH keypair and prints the public key for GitHub registration.
 
 ## Synopsis
 
@@ -23,7 +23,7 @@ Generates an RSA 4096-bit SSH keypair and prints the public key for GitLab regis
 - Writes keys to `~/.ssh/id_rsa` and `~/.ssh/id_rsa.pub`.
 - Validates email format when prompting.
 - Supports non-interactive overwrite via `-Force`.
-- Displays the generated public key and next steps to add it in GitLab.
+- Displays the generated public key and next steps to add it in GitHub.
 
 ## Examples
 
@@ -47,4 +47,4 @@ Generates an RSA 4096-bit SSH keypair and prints the public key for GitLab regis
 ## Notes
 
 - Keys are generated with 4096-bit RSA and no passphrase by default.
-- After generation, test connectivity using `STEP2_testGitLabConnection.ps1`.
+- After generation, test connectivity using `STEP2_testGitHubConnection.ps1`.

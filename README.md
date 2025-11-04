@@ -1,6 +1,6 @@
-# GitLab Repository Setup and Management
+# GitHub Repository Setup and Management
 
-This repository contains PowerShell scripts for setting up and managing multiple GitLab repository environments (INT, TEST, PROD) with automated SSH key generation and daily updates.
+This repository contains PowerShell scripts for setting up and managing multiple GitHub repository environments (INT, TEST, PROD) with automated SSH key generation and daily updates.
 
 ## 📥 Getting Started !
 
@@ -225,8 +225,8 @@ There are two easy ways to run the PowerShell scripts in this repository:
 ## 📋 Overview
 
 The setup process consists of 5 main steps:
-1. **SSH Key Generation** - Generate SSH keys for GitLab authentication
-2. **Connection Testing** - Verify GitLab SSH connectivity
+1. **SSH Key Generation** - Generate SSH keys for GitHub authentication
+2. **Connection Testing** - Verify GitHub SSH connectivity
 3. **INT Repository Setup** - Clone and configure Integration environment
 4. **TEST Repository Setup** - Clone and configure Test/Acceptance environment  
 5. **PROD Repository Setup** - Clone and configure Production environment
@@ -247,7 +247,7 @@ Before running these scripts, ensure you have:
 
 - **PowerShell 5.0+** (Windows PowerShell or PowerShell Core)
 - **Git** installed and accessible from command line
-- **Network access** to GitLab server (`gitlab.office.transporeon.com`)
+- **Network access** to GitHub server (`github.com`)
 - **VPN connection** (if required by your organization)
 - **Email address** for SSH key generation
 - **TortoiseGit** (optional, for GUI Git operations)
@@ -281,17 +281,17 @@ Run the SSH key generation script:
 
 **Manual Steps After Running:**
 1. Copy the displayed public key
-2. Go to: https://gitlab.office.transporeon.com/-/profile/keys
-3. Click "Add SSH Key" and paste the public key
-4. Give it a descriptive title (e.g., "GitLab SSH Key")
+2. Go to: https://github.com/settings/keys
+3. Click "New SSH Key" and paste the public key
+4. Give it a descriptive title (e.g., "GitHub SSH Key")
 
 </details>
 
-### Step 2: Test GitLab Connection
+### Step 2: Test GitHub Connection
 
 Verify your SSH setup is working:
-- **Method 1 (Recommended):** Right-click on `STEP2_testGitLabConnection.ps1` → "Run with PowerShell"
-- **Method 2 (Optional):** `.\STEP2_testGitLabConnection.ps1`
+- **Method 1 (Recommended):** Right-click on `STEP2_testGitHubConnection.ps1` → "Run with PowerShell"
+- **Method 2 (Optional):** `.\STEP2_testGitHubConnection.ps1`
 
 <details>
 <summary><strong>Step 2 Details - What it does and expected output</strong></summary>
@@ -299,14 +299,14 @@ Verify your SSH setup is working:
 **What it does:**
 - Checks if SSH keys exist
 - Shows key fingerprint
-- Tests connection to GitLab server
+- Tests connection to GitHub server
 - Provides troubleshooting guidance for common issues
 
 **Expected Success Output:**
 ```
 [SUCCESS] Connection Working!
-SSH connection to GitLab is working perfectly!
-GitLab Response: Welcome to GitLab, @username!
+SSH connection to GitHub is working perfectly!
+GitHub Response: Hi @username! You've successfully authenticated...
 ```
 
 </details>
@@ -321,7 +321,7 @@ Clone the Integration environment:
 <summary><strong>Step 3 Details - What it does and timing</strong></summary>
 
 **What it does:**
-- Clones repository branch `3.100/in` to `INT/` folder
+- Clones repository branch `stage-in` to `INT/` folder
 - Configures Git settings for TortoiseGit compatibility
 - Sets up proper line ending handling
 - Shows clone progress with timing
@@ -341,7 +341,7 @@ Clone the Test/Acceptance environment:
 <summary><strong>Step 4 Details - What it does and timing</strong></summary>
 
 **What it does:**
-- Clones repository branch `3.100/ac` to `TEST/` folder
+- Clones repository branch `stage-ac` to `TEST/` folder
 - Configures Git settings for optimal performance
 - Handles existing directories with user confirmation
 
@@ -360,7 +360,7 @@ Clone the Production environment:
 <summary><strong>Step 5 Details - What it does and timing</strong></summary>
 
 **What it does:**
-- Clones repository branch `3.100/pd` to `PROD/` folder
+- Clones repository branch `stage-pd` to `PROD/` folder
 - Completes the three-environment setup
 - Configures repository for production branch tracking
 
@@ -376,8 +376,7 @@ Use the daily update script to keep all repositories synchronized:
 - **Method 2 (Optional):** `.\DailyUpdate.ps1`
 
 **What it does:**
-- Automatically detects the latest version number
-- Force-pulls latest changes from all configured repositories
+- Automatically pulls latest changes from all configured repositories
 - Shows progress bars for each operation
 - Handles branch creation and switching automatically
 - Provides detailed completion summary
@@ -389,7 +388,7 @@ The script can be customized by editing the `$RepositoryConfig` section:
 $RepositoryConfig = @(
     @{ 
         FolderPath = "INT"     # Local folder name
-        BranchSuffix = "in"    # Git branch suffix
+        BranchName = "stage-in"    # Git branch name
         DisplayColor = [System.ConsoleColor]::Cyan 
         Description = "Integration Environment"
     },
@@ -410,9 +409,9 @@ C:\DEV\
 ├── STEP4_setup-test-repo.ps1
 ├── STEP5_setup-prod-repo.ps1
 ├── DailyUpdate.ps1
-├── INT/                    # Integration environment (branch: 3.100/in)
-├── TEST/                   # Test environment (branch: 3.100/ac)
-└── PROD/                   # Production environment (branch: 3.100/pd)
+├── INT/                    # Integration environment (branch: stage-in)
+├── TEST/                   # Test environment (branch: stage-ac)
+└── PROD/                   # Production environment (branch: stage-pd)
 ```
 
 ## 🔧 Configuration Options
@@ -427,16 +426,16 @@ $DEFAULT_EMAIL = "your.email@company.com"
 ### Repository URLs
 All setup scripts default to:
 ```
-https://gitlab.office.transporeon.com/Development/portfolio.git
+https://github.com/trimble-transport/ttc-ctp-custint-exchange-platform-monolith.git
 ```
 
 Override with the `-RemoteUrl` parameter if needed.
 
 ### Branch Names
 Default branches:
-- INT: `3.100/in`
-- TEST: `3.100/ac`  
-- PROD: `3.100/pd`
+- INT: `stage-in`
+- TEST: `stage-ac`  
+- PROD: `stage-pd`
 
 Override with the `-BranchName` parameter.
 
@@ -446,16 +445,16 @@ Override with the `-BranchName` parameter.
 
 **Problem:** "Permission denied" when testing connection
 **Solution:**
-1. Ensure public key is correctly added to GitLab
+1. Ensure public key is correctly added to GitHub
 2. Check key file permissions: `icacls ~/.ssh/id_rsa`
-3. Verify you're using the correct GitLab URL
+3. Verify you're using the correct GitHub URL
 
 ### Network Connection Issues
 
 **Problem:** "Connection refused" or timeouts
 **Solution:**
 1. Check VPN connection
-2. Verify network access to `gitlab.office.transporeon.com`
+2. Verify network access to `github.com`
 3. Check corporate firewall settings
 
 ### Clone Operation Issues
@@ -474,6 +473,13 @@ Override with the `-BranchName` parameter.
 1. Ensure TortoiseGit is installed
 2. Repositories are automatically configured for TortoiseGit compatibility
 3. Right-click in repository folder to access TortoiseGit menu
+
+**Problem:** TortoiseGit "No supported authentication methods available (server sent: publickey)"
+**Solution:** Change TortoiseGit SSH client to OpenSSH
+  1. Open TortoiseGit Settings → Network
+  2. Change SSH client to: `C:\Windows\System32\OpenSSH\ssh.exe`
+  3. Or use: `C:\Program Files\Git\usr\bin\ssh.exe`
+  4. Apply and retry
 
 ## 🔄 Daily Workflow
 
@@ -496,7 +502,7 @@ If you encounter issues:
 1. **Check Prerequisites** - Ensure all requirements are met
 2. **Review Error Messages** - Scripts provide detailed error information
 3. **Test Individual Components** - Run connection test independently
-4. **Check GitLab Access** - Verify you can access GitLab web interface
+4. **Check GitHub Access** - Verify you can access GitHub web interface
 5. **Network Connectivity** - Ensure VPN and network access
 
 ## 🔐 Security Notes
@@ -512,7 +518,7 @@ If you encounter issues:
 - `-Email <string>`: Email address for key generation
 - `-Force`: Overwrite existing keys without prompting
 
-### STEP2_testGitLabConnection.ps1
+### STEP2_testGitHubConnection.ps1
 - No parameters required
 
 ### STEP3-5_setup-*-repo.ps1

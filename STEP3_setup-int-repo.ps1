@@ -1,6 +1,6 @@
 param(
-    [string]$RemoteUrl = "https://gitlab.office.transporeon.com/Development/portfolio.git",
-    [string]$BranchName = "3.100/in",
+    [string]$RemoteUrl = "git@github.com:trimble-transport/ttc-ctp-custint-exchange-platform-monolith.git",
+    [string]$BranchName = "stage-in",
     [string]$FolderName = "INT"
 )
 
@@ -124,6 +124,28 @@ if (Test-Path $TargetPath) {
     }
 }
 
+# Verify branch exists on remote before cloning
+Write-Host "Verifying branch '$BranchName' exists on remote..." -ForegroundColor Cyan
+try {
+    $remoteBranches = git ls-remote --heads $RemoteUrl 2>&1
+    $branchExists = $remoteBranches | Select-String -Pattern "refs/heads/$BranchName$" -Quiet
+    
+    if (-not $branchExists) {
+        Write-Host "[ERROR] Branch '$BranchName' not found on remote repository" -ForegroundColor Red
+        Write-Host "`nAvailable branches:" -ForegroundColor Yellow
+        $remoteBranches | ForEach-Object {
+            if ($_ -match 'refs/heads/(.+)$') {
+                Write-Host "  - $($matches[1])" -ForegroundColor Gray
+            }
+        }
+        Exit-WithPause -Message "Branch verification failed. Please check the branch name and try again."
+    }
+    Write-Host "[OK] Branch '$BranchName' found on remote" -ForegroundColor Green
+} catch {
+    Write-Host "[WARNING] Could not verify branch existence: $($_.Exception.Message)" -ForegroundColor Yellow
+    Write-Host "Continuing with clone attempt anyway..." -ForegroundColor Yellow
+}
+
 # Clone the repository
 Write-Host "Cloning INT repository (branch: $BranchName)..." -ForegroundColor Cyan
 Write-Host "This may take several minutes for large repositories..." -ForegroundColor Gray
@@ -171,13 +193,8 @@ try {
         git config core.filemode false
         git config gui.recentrepo $TargetPath
         
-        # Configure SSH authentication (switch from HTTPS to SSH)
-        Write-Host "Configuring SSH authentication..." -ForegroundColor Gray
-        git remote set-url origin git@gitlab.office.transporeon.com:Development/portfolio.git
-        Write-Host "[OK] Remote URL configured for SSH authentication" -ForegroundColor Green
-        
         Pop-Location
-        Write-Host "[OK] Repository configured" -ForegroundColor Green
+        Write-Host "[OK] Repository configured (using SSH authentication)" -ForegroundColor Green
         
     } else {
         $errorMessage = "[FAIL] Repository clone failed (Exit code: $($cloneResult.ExitCode))`n"

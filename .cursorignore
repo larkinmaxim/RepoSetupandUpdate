@@ -1,0 +1,8 @@
+# Cursor Ignore File
+# Folders to ignore in Cursor's indexing and AI context
+
+# Environment-specific folders
+INT/
+PROD/
+TEST/
+

@@ -1,6 +1,6 @@
 param(
-    [string]$RemoteUrl = "https://gitlab.office.transporeon.com/Development/portfolio.git",
-    [string]$BranchName = "3.100/ac",
+    [string]$RemoteUrl = "git@github.com:trimble-transport/ttc-ctp-custint-exchange-platform-monolith.git",
+    [string]$BranchName = "stage-ac",
     [string]$FolderName = "TEST"
 )
 
@@ -170,13 +170,8 @@ try {
         git config core.filemode false
         git config gui.recentrepo $TargetPath
         
-        # Configure SSH authentication (switch from HTTPS to SSH)
-        Write-Host "Configuring SSH authentication..." -ForegroundColor Gray
-        git remote set-url origin git@gitlab.office.transporeon.com:Development/portfolio.git
-        Write-Host "[OK] Remote URL configured for SSH authentication" -ForegroundColor Green
-        
         Pop-Location
-        Write-Host "[OK] Repository configured" -ForegroundColor Green
+        Write-Host "[OK] Repository configured (using SSH authentication)" -ForegroundColor Green
         
     } else {
         $errorMessage = "[FAIL] Repository clone failed (Exit code: $($cloneResult.ExitCode))`n"

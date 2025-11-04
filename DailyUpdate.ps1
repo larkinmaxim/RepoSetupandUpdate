@@ -5,29 +5,29 @@
 # =============================================================================
 
 # Define your local folder structure here
-# Each entry contains: FolderPath, BranchSuffix, DisplayColor
+# Each entry contains: FolderPath, BranchName, DisplayColor
 $RepositoryConfig = @(
     @{ 
         FolderPath = "INT"     # Local folder name
-        BranchSuffix = "in"    # Git branch suffix (e.g., 3.100/in)
+        BranchName = "stage-in"    # Git branch name
         DisplayColor = [System.ConsoleColor]::Cyan 
         Description = "Integration Environment"
     },
     @{ 
         FolderPath = "TEST"    # Local folder name  
-        BranchSuffix = "ac"    # Git branch suffix (e.g., 3.100/ac)
+        BranchName = "stage-ac"    # Git branch name
         DisplayColor = [System.ConsoleColor]::Magenta 
         Description = "Acceptance Environment"
     },
     @{ 
         FolderPath = "PROD"    # Local folder name
-        BranchSuffix = "pd"    # Git branch suffix (e.g., 3.100/pd)
+        BranchName = "stage-pd"    # Git branch name
         DisplayColor = [System.ConsoleColor]::Yellow 
         Description = "Production Environment"
     }
 )
 
-# Starting directory (where to look for version branches)
+# Starting directory (where to look for branches)
 $StartingDirectory = "INT"
 
 # =============================================================================
@@ -37,9 +37,9 @@ $StartingDirectory = "INT"
 # 
 # Example for different folder names:
 # $RepositoryConfig = @(
-#     @{ FolderPath = "MyIntegration"; BranchSuffix = "in"; DisplayColor = [System.ConsoleColor]::Cyan; Description = "Integration" },
-#     @{ FolderPath = "MyAcceptance"; BranchSuffix = "ac"; DisplayColor = [System.ConsoleColor]::Magenta; Description = "Acceptance" },
-#     @{ FolderPath = "MyProduction"; BranchSuffix = "pd"; DisplayColor = [System.ConsoleColor]::Yellow; Description = "Production" }
+#     @{ FolderPath = "MyIntegration"; BranchName = "stage-in"; DisplayColor = [System.ConsoleColor]::Cyan; Description = "Integration" },
+#     @{ FolderPath = "MyAcceptance"; BranchName = "stage-ac"; DisplayColor = [System.ConsoleColor]::Magenta; Description = "Acceptance" },
+#     @{ FolderPath = "MyProduction"; BranchName = "stage-pd"; DisplayColor = [System.ConsoleColor]::Yellow; Description = "Production" }
 # )
 # 
 # You can add or remove repositories as needed!
@@ -59,49 +59,14 @@ function Invoke-GitCommand {
     $output | Where-Object { $_ -notmatch "fatal: unable to connect to cache daemon" }
 }
 
-# Function to get the latest version number once with progress tracking
-function Get-LatestVersionNumber {
-    Write-Progress -Id 1 -Activity "Initializing Repository Updates" -Status "Fetching remote branches..." -PercentComplete 10
-    
-    # Get all remote branches
-    Invoke-GitCommand "git fetch origin"
-    
-    Write-Progress -Id 1 -Activity "Initializing Repository Updates" -Status "Analyzing remote branches..." -PercentComplete 50
-    
-    $branches = git branch -r | ForEach-Object { $_.ToString().Trim() }
-    
-    Write-Progress -Id 1 -Activity "Initializing Repository Updates" -Status "Processing version information..." -PercentComplete 80
-    
-    # Create objects with version and branch name for proper sorting
-    $versionObjects = $branches | ForEach-Object {
-        if ($_ -match "origin/(\d+\.\d+)/") {
-            [PSCustomObject]@{
-                Version = [System.Version]$matches[1]
-            }
-        }
-    } | Where-Object { $_.Version -ne $null }
-    
-    # Sort by version and get the latest unique version
-    $latestVersion = $versionObjects | Sort-Object Version -Unique | Select-Object -Last 1
-    
-    Write-Progress -Id 1 -Activity "Initializing Repository Updates" -Status "Version detection complete" -PercentComplete 100
-    Start-Sleep -Milliseconds 500  # Brief pause to show completion
-    Write-Progress -Id 1 -Activity "Initializing Repository Updates" -Completed
-    
-    return $latestVersion.Version.ToString()
-}
-
-# Function to update a repository with force pull using known version and progress tracking
+# Function to update a repository with force pull using known branch name and progress tracking
 function Update-Repository {
     param (
         [Parameter(Mandatory = $true)]
         [string]$FolderPath,
         
         [Parameter(Mandatory = $true)]
-        [string]$VersionNumber,
-        
-        [Parameter(Mandatory = $true)]
-        [string]$BranchSuffix,
+        [string]$BranchName,
         
         [Parameter(Mandatory = $false)]
         [System.ConsoleColor]$Color = [System.ConsoleColor]::Cyan,
@@ -141,19 +106,18 @@ function Update-Repository {
     
     # Step 3: Prepare branch information
     Write-Progress -Id 3 -ParentId 2 -Activity "Updating $displayName Repository" -Status "Preparing branch information..." -PercentComplete 50
-    $branchName = "$VersionNumber/$BranchSuffix"
-    $remoteBranch = "origin/$VersionNumber/$BranchSuffix"
+    $remoteBranch = "origin/$BranchName"
     
-    Write-Host "Working with branch: $branchName" -ForegroundColor $Color
+    Write-Host "Working with branch: $BranchName" -ForegroundColor $Color
     
     # Step 4: Check out branch
-    Write-Progress -Id 3 -ParentId 2 -Activity "Updating $displayName Repository" -Status "Checking out branch $branchName..." -PercentComplete 70
+    Write-Progress -Id 3 -ParentId 2 -Activity "Updating $displayName Repository" -Status "Checking out branch $BranchName..." -PercentComplete 70
     
-    git checkout $branchName 2>&1 | Out-Null
+    git checkout $BranchName 2>&1 | Out-Null
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "Creating local branch for $branchName..." -ForegroundColor $Color
+        Write-Host "Creating local branch for $BranchName..." -ForegroundColor $Color
         Write-Progress -Id 3 -ParentId 2 -Activity "Updating $displayName Repository" -Status "Creating new local branch..." -PercentComplete 80
-        Invoke-GitCommand "git checkout -b $branchName $remoteBranch"
+        Invoke-GitCommand "git checkout -b $BranchName $remoteBranch"
     } else {
         # Step 5: Force update the local branch
         Write-Host "Resetting local branch to match remote (force pull)..." -ForegroundColor $Color
@@ -182,10 +146,9 @@ Invoke-GitCommand "git config --global credential.helper ''"
 Write-Host "Changing directory to $StartingDirectory..."
 cd $StartingDirectory
 
-# Get the latest version number once
-Write-Host "Determining latest version number..."
-$latestVersion = Get-LatestVersionNumber
-Write-Host "Latest version detected: $latestVersion" -ForegroundColor Yellow
+Write-Progress -Id 1 -Activity "Initializing Repository Updates" -Status "Initialization complete" -PercentComplete 100
+Start-Sleep -Milliseconds 500  # Brief pause to show completion
+Write-Progress -Id 1 -Activity "Initializing Repository Updates" -Completed
 
 $totalRepos = $RepositoryConfig.Count
 
@@ -197,13 +160,13 @@ Write-Host ""
 Write-Host "Repository Configuration:" -ForegroundColor White
 for ($i = 0; $i -lt $totalRepos; $i++) {
     $repo = $RepositoryConfig[$i]
-    Write-Host "  $($i + 1). $($repo.FolderPath) -> $latestVersion/$($repo.BranchSuffix) ($($repo.Description))" -ForegroundColor $repo.DisplayColor
+    Write-Host "  $($i + 1). $($repo.FolderPath) -> $($repo.BranchName) ($($repo.Description))" -ForegroundColor $repo.DisplayColor
 }
 
 # Update all repositories with progress tracking
 for ($i = 0; $i -lt $totalRepos; $i++) {
     $repo = $RepositoryConfig[$i]
-    Update-Repository -FolderPath $repo.FolderPath -VersionNumber $latestVersion -BranchSuffix $repo.BranchSuffix -Color $repo.DisplayColor -RepoIndex ($i + 1) -TotalRepos $totalRepos -Description $repo.Description
+    Update-Repository -FolderPath $repo.FolderPath -BranchName $repo.BranchName -Color $repo.DisplayColor -RepoIndex ($i + 1) -TotalRepos $totalRepos -Description $repo.Description
 }
 
 # Final cleanup with progress
@@ -230,10 +193,9 @@ Write-Host "$separator" -ForegroundColor White
 Write-Host "Update Summary:" -ForegroundColor White
 for ($i = 0; $i -lt $totalRepos; $i++) {
     $repo = $RepositoryConfig[$i]
-    Write-Host "  - $($repo.FolderPath) repository -> $latestVersion/$($repo.BranchSuffix)" -ForegroundColor $repo.DisplayColor
+    Write-Host "  - $($repo.FolderPath) repository -> $($repo.BranchName)" -ForegroundColor $repo.DisplayColor
 }
-Write-Host "`nTarget Version: $latestVersion" -ForegroundColor Green
-Write-Host "$separator" -ForegroundColor White
+Write-Host "`n$separator" -ForegroundColor White
 
 # Optional: Add a countdown before closing
 Write-Host "`nScript completed successfully! Window will close in 10 seconds..." -ForegroundColor DarkYellow
