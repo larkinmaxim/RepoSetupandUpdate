@@ -3,6 +3,8 @@
 INT/
 TEST/
 PROD/
+docs/
+Documentation/
 
 # Temporary files
 *.tmp

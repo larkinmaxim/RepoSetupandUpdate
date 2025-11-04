@@ -94,7 +94,7 @@ Cloning means downloading a complete copy of this repository (all files and scri
 
 After successful cloning, your `C:\DEV` folder should contain:
 - `STEP1_sshKeygen.ps1`
-- `STEP2_testGitLabConnection.ps1`
+- `STEP2_testGithubConnection.ps1`
 - `STEP3_setup-int-repo.ps1`
 - `STEP4_setup-test-repo.ps1`
 - `STEP5_setup-prod-repo.ps1`
@@ -290,8 +290,8 @@ Run the SSH key generation script:
 ### Step 2: Test GitHub Connection
 
 Verify your SSH setup is working:
-- **Method 1 (Recommended):** Right-click on `STEP2_testGitHubConnection.ps1` → "Run with PowerShell"
-- **Method 2 (Optional):** `.\STEP2_testGitHubConnection.ps1`
+- **Method 1 (Recommended):** Right-click on `STEP2_testGithubConnection.ps1` → "Run with PowerShell"
+- **Method 2 (Optional):** `.\STEP2_testGithubConnection.ps1`
 
 <details>
 <summary><strong>Step 2 Details - What it does and expected output</strong></summary>
@@ -404,7 +404,7 @@ After setup completion, your directory structure will be:
 C:\DEV\
 ├── README.md
 ├── STEP1_sshKeygen.ps1
-├── STEP2_testGitLabConnection.ps1
+├── STEP2_testGithubConnection.ps1
 ├── STEP3_setup-int-repo.ps1
 ├── STEP4_setup-test-repo.ps1
 ├── STEP5_setup-prod-repo.ps1
@@ -424,12 +424,12 @@ $DEFAULT_EMAIL = "your.email@company.com"
 ```
 
 ### Repository URLs
-All setup scripts default to:
+All setup scripts default to SSH authentication:
 ```
-https://github.com/trimble-transport/ttc-ctp-custint-exchange-platform-monolith.git
+git@github.com:trimble-transport/ttc-ctp-custint-exchange-platform-monolith.git
 ```
 
-Override with the `-RemoteUrl` parameter if needed.
+Override with the `-RemoteUrl` parameter if needed (ensure SSH format for private repositories).
 
 ### Branch Names
 Default branches:
@@ -518,7 +518,7 @@ If you encounter issues:
 - `-Email <string>`: Email address for key generation
 - `-Force`: Overwrite existing keys without prompting
 
-### STEP2_testGitHubConnection.ps1
+### STEP2_testGithubConnection.ps1
 - No parameters required
 
 ### STEP3-5_setup-*-repo.ps1
