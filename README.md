@@ -231,7 +231,7 @@ The setup process consists of 5 main steps:
 4. **TEST Repository Setup** - Clone and configure Test/Acceptance environment  
 5. **PROD Repository Setup** - Clone and configure Production environment
 
-⚠️ **Important:** Steps 3, 4, and 5 can each take up to 20 minutes due to the large size of the repositories being cloned.
+⚡ **Performance:** Steps 3, 4, and 5 use shallow cloning (--depth 1) to download only the latest commit. This makes cloning much faster (typically 2-5 minutes) and more reliable on unstable internet connections.
 
 Additionally, there's a daily update script that automatically pulls the latest changes from all environments.
 
@@ -321,12 +321,13 @@ Clone the Integration environment:
 <summary><strong>Step 3 Details - What it does and timing</strong></summary>
 
 **What it does:**
-- Clones repository branch `stage-in` to `INT/` folder
+- Clones repository branch `stage-in` to `INT/` folder using shallow clone (--depth 1)
+- Shallow clone downloads only the latest commit for faster, more reliable cloning
 - Configures Git settings for TortoiseGit compatibility
 - Sets up proper line ending handling
 - Shows clone progress with timing
 
-⏱️ **Time Required:** This step can take up to 20 minutes due to the large size of the cloned repository.
+⏱️ **Time Required:** Shallow clone significantly reduces download time and is more reliable on unstable connections. Typically completes in 2-5 minutes.
 
 </details>
 
@@ -341,11 +342,12 @@ Clone the Test/Acceptance environment:
 <summary><strong>Step 4 Details - What it does and timing</strong></summary>
 
 **What it does:**
-- Clones repository branch `stage-ac` to `TEST/` folder
+- Clones repository branch `stage-ac` to `TEST/` folder using shallow clone (--depth 1)
+- Shallow clone downloads only the latest commit for faster, more reliable cloning
 - Configures Git settings for optimal performance
 - Handles existing directories with user confirmation
 
-⏱️ **Time Required:** This step can take up to 20 minutes due to the large size of the cloned repository.
+⏱️ **Time Required:** Shallow clone significantly reduces download time and is more reliable on unstable connections. Typically completes in 2-5 minutes.
 
 </details>
 
@@ -360,11 +362,12 @@ Clone the Production environment:
 <summary><strong>Step 5 Details - What it does and timing</strong></summary>
 
 **What it does:**
-- Clones repository branch `stage-pd` to `PROD/` folder
+- Clones repository branch `stage-pd` to `PROD/` folder using shallow clone (--depth 1)
+- Shallow clone downloads only the latest commit for faster, more reliable cloning
 - Completes the three-environment setup
 - Configures repository for production branch tracking
 
-⏱️ **Time Required:** This step can take up to 20 minutes due to the large size of the cloned repository.
+⏱️ **Time Required:** Shallow clone significantly reduces download time and is more reliable on unstable connections. Typically completes in 2-5 minutes.
 
 </details>
 
@@ -438,6 +441,29 @@ Default branches:
 - PROD: `stage-pd`
 
 Override with the `-BranchName` parameter.
+
+## ❓ Frequently Asked Questions
+
+### What is a shallow clone?
+A shallow clone (`--depth 1`) downloads only the latest commit instead of the entire git history. This:
+- ✅ Reduces download size significantly (from GB to MB)
+- ✅ Makes cloning much faster (2-5 minutes vs 20+ minutes)
+- ✅ More reliable on unstable connections
+- ✅ Provides all current files you need for development
+- ⚠️ Does not include commit history (you'll only see the latest commit)
+
+### Do I need the full git history?
+For most development work, no. Shallow clones provide all the current files and you can still:
+- Make commits and push changes
+- Create branches
+- Pull updates
+- Use TortoiseGit
+
+### How do I convert a shallow clone to a full clone?
+If you later need the full history, run this in the repository folder:
+```powershell
+git fetch --unshallow
+```
 
 ## ❗ Troubleshooting
 

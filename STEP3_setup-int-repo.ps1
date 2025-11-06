@@ -166,7 +166,8 @@ try {
     
     # Use git clone directly - this allows Ctrl+C to work properly
     # Git's --progress flag will show real-time progress to the console
-    git clone -b $BranchName --progress $RemoteUrl $TargetPath
+    # --depth 1 creates a shallow clone (only latest commit) for faster, more reliable downloads
+    git clone -b $BranchName --depth 1 --progress $RemoteUrl $TargetPath
     
     $stopwatch.Stop()
     $cloneResult = @{
