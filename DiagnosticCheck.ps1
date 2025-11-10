@@ -1,13 +1,13 @@
-# Git Configuration Diagnostic Script (Hybrid SSH/HTTPS Support)
-# Run this before STEP3 to identify potential issues
-# Supports both SSH and HTTPS authentication methods
+# Git Configuration Diagnostic Script (HTTPS-Focused)
+# Run this before repository setup to identify potential issues
+# Primarily checks HTTPS configuration (recommended for Netskope environments)
 
 Write-Host "==========================================" -ForegroundColor Cyan
-Write-Host "  GIT CONFIGURATION DIAGNOSTIC (v2.0)" -ForegroundColor Cyan
-Write-Host "  Hybrid SSH/HTTPS Detection" -ForegroundColor Cyan
+Write-Host "  GIT CONFIGURATION DIAGNOSTIC (v3.0)" -ForegroundColor Cyan
+Write-Host "  HTTPS-First Detection" -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
 Write-Host "This script checks for common Git configuration issues" -ForegroundColor Gray
-Write-Host "Supports both SSH and HTTPS authentication methods`n" -ForegroundColor Gray
+Write-Host "Recommends HTTPS authentication (SSH port 22 blocked by Netskope)`n" -ForegroundColor Gray
 
 # Function to display status with color coding
 function Show-Status {
@@ -74,40 +74,42 @@ $httpsConfigured = ($netskopeCertExists -and $sslCaInfo -eq $netskopeCertPath)
 Write-Host ""
 Write-Host "Authentication Methods Available:" -ForegroundColor Cyan
 
-if ($sshConfigured) {
-    Show-Status "SSH: Configured (SSH key found)" "OK"
-    Write-Host "   Key location: $sshKeyPath" -ForegroundColor Gray
-    $primaryMethod = "SSH"
-} else {
-    Show-Status "SSH: Not configured (no SSH key)" "INFO"
-    Write-Host "   To enable SSH: Run STEP1_sshKeygen.ps1" -ForegroundColor Gray
-}
-
 if ($httpsConfigured) {
-    Show-Status "HTTPS: Configured (Netskope certificate configured)" "OK"
+    Show-Status "HTTPS: Configured (Netskope certificate configured) - RECOMMENDED" "OK"
     Write-Host "   Certificate: $netskopeCertPath" -ForegroundColor Gray
-    if (-not $sshConfigured) { $primaryMethod = "HTTPS" }
+    $primaryMethod = "HTTPS"
 } elseif ($netskopeCertExists) {
     Show-Status "HTTPS: Partially configured (certificate exists but not in Git config)" "WARNING"
-    Write-Host "   To enable HTTPS: Run Setup_netskopecertificate_administrator.ps1" -ForegroundColor Cyan
+    Write-Host "   To enable HTTPS: Run STEP1_setup-netskope-certificate-https.ps1" -ForegroundColor Cyan
 } else {
-    Show-Status "HTTPS: Not configured (no Netskope certificate)" "INFO"
-    Write-Host "   To enable HTTPS: Run Setup_netskopecertificate_administrator.ps1" -ForegroundColor Gray
+    Show-Status "HTTPS: Not configured (no Netskope certificate)" "WARNING"
+    Write-Host "   To enable HTTPS: Run STEP1_setup-netskope-certificate-https.ps1" -ForegroundColor Yellow
+}
+
+if ($sshConfigured) {
+    Show-Status "SSH: Configured (SSH key found) - NOT RECOMMENDED (port 22 blocked)" "WARNING"
+    Write-Host "   Key location: $sshKeyPath" -ForegroundColor Gray
+    Write-Host "   Note: SSH (port 22) is blocked by Netskope - use HTTPS instead" -ForegroundColor Yellow
+} else {
+    Show-Status "SSH: Not configured" "INFO"
+    Write-Host "   SSH not needed (port 22 blocked by Netskope)" -ForegroundColor Gray
 }
 
 Write-Host ""
-if ($sshConfigured -and $httpsConfigured) {
-    Show-Status "Both SSH and HTTPS are configured - Using SSH as primary" "INFO"
+if ($httpsConfigured) {
+    Show-Status "HTTPS authentication is configured and ready!" "OK"
+    $primaryMethod = "HTTPS"
+} elseif ($sshConfigured) {
+    Show-Status "Only SSH is configured, but SSH (port 22) is blocked!" "WARNING"
+    Write-Host "   You should configure HTTPS instead" -ForegroundColor Yellow
+    Write-Host "   Run: STEP1_setup-netskope-certificate-https.ps1" -ForegroundColor Cyan
     $primaryMethod = "SSH"
-} elseif (-not $sshConfigured -and -not $httpsConfigured) {
+} else {
     Show-Status "Neither SSH nor HTTPS is configured!" "ERROR"
-    Write-Host "   You must configure at least one authentication method" -ForegroundColor Red
-    Write-Host "   Option 1: Run STEP1_sshKeygen.ps1 (Recommended)" -ForegroundColor Cyan
-    Write-Host "   Option 2: Run Setup_netskopecertificate_administrator.ps1" -ForegroundColor Cyan
+    Write-Host "   You must configure HTTPS authentication" -ForegroundColor Red
+    Write-Host "   Run: STEP1_setup-netskope-certificate-https.ps1" -ForegroundColor Cyan
     Pause-WithMessage
     exit 1
-} else {
-    Show-Status "Primary authentication method: $primaryMethod" "INFO"
 }
 
 # ============================================================================
@@ -149,10 +151,10 @@ if ($sshConfigured) {
             Write-Host "   Your SSH key is not added to GitHub or is incorrect" -ForegroundColor Red
             Write-Host "   Fix: Add your public key to https://github.com/settings/keys" -ForegroundColor Cyan
         } elseif ($sshTest -like "*Connection refused*" -or $sshTest -like "*Connection timed out*") {
-            Show-Status "SSH connection BLOCKED or TIMED OUT" "ERROR"
-            Write-Host "   SSH (port 22) may be blocked by firewall/proxy" -ForegroundColor Red
-            Write-Host "   Consider using HTTPS instead" -ForegroundColor Cyan
-            Write-Host "   Run: Setup_netskopecertificate_administrator.ps1" -ForegroundColor Cyan
+            Show-Status "SSH connection BLOCKED or TIMED OUT (Expected - Netskope blocks port 22)" "WARNING"
+            Write-Host "   SSH (port 22) is blocked by Netskope" -ForegroundColor Yellow
+            Write-Host "   Switch to HTTPS authentication" -ForegroundColor Cyan
+            Write-Host "   Run: STEP1_setup-netskope-certificate-https.ps1" -ForegroundColor Cyan
         } else {
             Show-Status "SSH connection test returned unexpected result" "WARNING"
             Write-Host "   Exit code: $sshExitCode" -ForegroundColor Gray
@@ -353,39 +355,36 @@ if ($httpsConfigured) {
 
 Write-Host "`nRecommendations:" -ForegroundColor Yellow
 
-if ($sshConfigured -and $httpsConfigured) {
-    Write-Host "  - Both authentication methods are available" -ForegroundColor Green
-    Write-Host "  - STEP3-5 will use SSH by default (git@github.com:...)" -ForegroundColor Gray
-    Write-Host "  - To use HTTPS, modify RemoteUrl to https://github.com/..." -ForegroundColor Gray
+if ($httpsConfigured) {
+    Write-Host "  ✅ HTTPS authentication is ready!" -ForegroundColor Green
+    Write-Host "  - You can run STEP2-4 scripts to clone repositories" -ForegroundColor Gray
+    Write-Host "  - All setup scripts now use HTTPS by default" -ForegroundColor Gray
+    if ($sshConfigured) {
+        Write-Host "  - SSH is configured but blocked (port 22) - HTTPS is used instead" -ForegroundColor Yellow
+    }
 } elseif ($sshConfigured) {
-    Write-Host "  - SSH authentication is ready" -ForegroundColor Green
-    Write-Host "  - You can run STEP3-5 scripts to clone repositories" -ForegroundColor Gray
-    Write-Host "  - Optional: Run Setup_netskopecertificate_administrator.ps1 to enable HTTPS" -ForegroundColor Gray
-} elseif ($httpsConfigured) {
-    Write-Host "  - HTTPS authentication is ready" -ForegroundColor Green
-    Write-Host "  - To use STEP3-5, modify RemoteUrl to https://github.com/..." -ForegroundColor Gray
-    Write-Host "  - Optional: Run STEP1_sshKeygen.ps1 to enable SSH" -ForegroundColor Gray
+    Write-Host "  ⚠️  SSH is configured but SSH (port 22) is blocked by Netskope!" -ForegroundColor Yellow
+    Write-Host "  - You must switch to HTTPS authentication" -ForegroundColor Red
+    Write-Host "  - Run: STEP1_setup-netskope-certificate-https.ps1" -ForegroundColor Cyan
 } else {
-    Write-Host "  - No authentication method configured!" -ForegroundColor Red
-    Write-Host "  - Next steps:" -ForegroundColor Yellow
-    Write-Host "    1. For SSH (recommended): Run STEP1_sshKeygen.ps1" -ForegroundColor Gray
-    Write-Host "    2. For HTTPS: Run Setup_netskopecertificate_administrator.ps1" -ForegroundColor Gray
+    Write-Host "  ❌ No authentication method configured!" -ForegroundColor Red
+    Write-Host "  - Next step: Run STEP1_setup-netskope-certificate-https.ps1" -ForegroundColor Yellow
+    Write-Host "  - This will enable HTTPS authentication (SSH is blocked)" -ForegroundColor Gray
 }
 
 Write-Host "`nExit Code 128 Troubleshooting:" -ForegroundColor Yellow
 Write-Host "  If you encounter 'Exit code 128' during git clone:" -ForegroundColor Gray
 Write-Host ""
-Write-Host "  For SSH users (git@github.com:...):" -ForegroundColor Cyan
-Write-Host "    - Verify SSH key is added to GitHub: https://github.com/settings/keys" -ForegroundColor Gray
-Write-Host "    - Test SSH: ssh -vT git@github.com" -ForegroundColor Gray
-Write-Host "    - Check if SSH (port 22) is blocked by firewall/proxy" -ForegroundColor Gray
-Write-Host "    - If blocked, switch to HTTPS method" -ForegroundColor Gray
-Write-Host ""
-Write-Host "  For HTTPS users (https://github.com/...):" -ForegroundColor Cyan
+Write-Host "  For HTTPS users (https://github.com/...) - RECOMMENDED:" -ForegroundColor Cyan
 Write-Host "    - Ensure Netskope certificate is configured" -ForegroundColor Gray
-Write-Host "    - Run: Setup_netskopecertificate_administrator.ps1" -ForegroundColor Gray
+Write-Host "    - Run: STEP1_setup-netskope-certificate-https.ps1" -ForegroundColor Gray
 Write-Host "    - Check network/VPN connectivity" -ForegroundColor Gray
-Write-Host "    - Verify Git credential manager is working" -ForegroundColor Gray
+Write-Host "    - Verify GitHub SSO authorization" -ForegroundColor Gray
+Write-Host "    - Test: STEP0_test-https-connection.ps1" -ForegroundColor Gray
+Write-Host ""
+Write-Host "  Note: SSH (git@github.com:...) is blocked by Netskope" -ForegroundColor Yellow
+Write-Host "    - Port 22 is not accessible" -ForegroundColor Gray
+Write-Host "    - Use HTTPS instead (all scripts now default to HTTPS)" -ForegroundColor Gray
 
 Write-Host "`nLegend:" -ForegroundColor Cyan
 Write-Host "  [OK] OK      - No action needed" -ForegroundColor Green

@@ -1,24 +1,18 @@
 # Netskope Certificate Setup for Git (MUST RUN AS ADMINISTRATOR)
 # This script creates a combined certificate bundle and configures Git to use it
 
-#Requires -RunAsAdministrator
-
 Write-Host "================================================================" -ForegroundColor Cyan
 Write-Host "  Netskope Certificate Setup for Git (HTTPS AUTHENTICATION)" -ForegroundColor Cyan
 Write-Host "================================================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "IMPORTANT: This script configures HTTPS authentication only!" -ForegroundColor Yellow
+Write-Host "IMPORTANT: This script configures HTTPS authentication!" -ForegroundColor Yellow
+Write-Host "Required for: All repository setup scripts (STEP2-4)" -ForegroundColor Yellow
 Write-Host "================================================================" -ForegroundColor Yellow
 Write-Host ""
-Write-Host "Authentication Methods:" -ForegroundColor Cyan
-Write-Host "  - SSH (git@github.com:...)   - Uses SSH keys (STEP1-2)" -ForegroundColor Gray
-Write-Host "  - HTTPS (https://github.com/...) - Uses this certificate" -ForegroundColor Gray
-Write-Host ""
-Write-Host "Current STEP3-5 scripts use SSH by default." -ForegroundColor White
-Write-Host "This certificate is needed if:" -ForegroundColor White
-Write-Host "  1. SSH (port 22) is blocked in your environment, OR" -ForegroundColor Gray
-Write-Host "  2. You prefer HTTPS authentication, OR" -ForegroundColor Gray
-Write-Host "  3. You need it for other tools (gcloud, pip, etc.)" -ForegroundColor Gray
+Write-Host "Why HTTPS?" -ForegroundColor Cyan
+Write-Host "  - SSH (port 22) is blocked by Netskope" -ForegroundColor Gray
+Write-Host "  - HTTPS (port 443) works through corporate firewall" -ForegroundColor Gray
+Write-Host "  - Integrates with company SSO/SAML authentication" -ForegroundColor Gray
 Write-Host ""
 
 # Function to display status with color coding
@@ -57,44 +51,82 @@ function Pause-WithMessage {
 # Verify running as Administrator
 $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
-    Show-Status "This script must be run as Administrator!" "ERROR"
-    Show-Status "Right-click PowerShell and select 'Run as Administrator'" "INFO"
-    Pause-WithMessage
-    exit 1
+    Write-Host ""
+    Show-Status "This script requires Administrator privileges!" "WARNING"
+    Write-Host ""
+    Write-Host "This script needs Administrator rights to:" -ForegroundColor Cyan
+    Write-Host "  - Create certificate directory in C:\Netskope Certs" -ForegroundColor Gray
+    Write-Host "  - Export certificates from Windows certificate store" -ForegroundColor Gray
+    Write-Host "  - Configure Git global settings" -ForegroundColor Gray
+    Write-Host "  - Set system environment variables" -ForegroundColor Gray
+    Write-Host ""
+    
+    # Offer to automatically restart with admin rights
+    Write-Host "Would you like to automatically restart this script as Administrator?" -ForegroundColor Yellow
+    Write-Host "(You will see a Windows prompt asking for permission)" -ForegroundColor Gray
+    Write-Host ""
+    $relaunch = Read-Host "Restart as Administrator? (Y/N)"
+    
+    if ($relaunch -match "^[Yy]") {
+        Write-Host ""
+        Write-Host "Relaunching with Administrator privileges..." -ForegroundColor Green
+        Write-Host "Please click 'Yes' when Windows asks for permission" -ForegroundColor Yellow
+        Start-Sleep -Seconds 2
+        
+        try {
+            # Relaunch this script with admin rights
+            $scriptPath = $MyInvocation.MyCommand.Path
+            Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`"" -Verb RunAs
+            exit 0
+        } catch {
+            Write-Host ""
+            Show-Status "Failed to relaunch as Administrator" "ERROR"
+            Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
+            Write-Host ""
+            Write-Host "Please run manually as Administrator:" -ForegroundColor Yellow
+            Write-Host "  1. Right-click on: STEP1_setup-netskope-certificate-https.ps1" -ForegroundColor Gray
+            Write-Host "  2. Select 'Run with PowerShell'" -ForegroundColor Gray
+            Write-Host "  3. Click 'Yes' when prompted" -ForegroundColor Gray
+            Write-Host ""
+            Pause-WithMessage
+            exit 1
+        }
+    } else {
+        Write-Host ""
+        Write-Host "Script cancelled." -ForegroundColor Yellow
+        Write-Host ""
+        Write-Host "To run manually as Administrator:" -ForegroundColor Cyan
+        Write-Host "  1. Right-click on the script file" -ForegroundColor Gray
+        Write-Host "  2. Select 'Run with PowerShell'" -ForegroundColor Gray
+        Write-Host "  3. Click 'Yes' when Windows prompts for permission" -ForegroundColor Gray
+        Write-Host ""
+        Write-Host "OR open PowerShell as Administrator:" -ForegroundColor Cyan
+        Write-Host "  1. Right-click PowerShell icon → Run as Administrator" -ForegroundColor Gray
+        Write-Host "  2. Navigate to: cd E:\Repositories" -ForegroundColor Gray
+        Write-Host "  3. Run: .\STEP1_setup-netskope-certificate-https.ps1" -ForegroundColor Gray
+        Write-Host ""
+        Pause-WithMessage
+        exit 1
+    }
 }
 
 Show-Status "Running with Administrator privileges" "OK"
 
-# Check if user actually needs this
 Write-Host ""
-Write-Host "Quick Check: Do you need HTTPS authentication?" -ForegroundColor Yellow
+Write-Host "This setup is REQUIRED for all repository cloning scripts (STEP2-4)" -ForegroundColor Cyan
+Write-Host "Certificate enables HTTPS authentication through Netskope" -ForegroundColor Gray
 Write-Host ""
 
-$sshKeyExists = Test-Path "$env:USERPROFILE\.ssh\id_rsa"
-if ($sshKeyExists) {
-    Write-Host "[DETECTED] You already have SSH keys configured" -ForegroundColor Green
-    Write-Host "           SSH authentication is working or can work" -ForegroundColor Gray
+$continue = Read-Host "Continue with certificate setup? (Y/N)"
+if ($continue -notmatch "^[Yy]") {
     Write-Host ""
-    Write-Host "You may NOT need this script if:" -ForegroundColor Cyan
-    Write-Host "  - SSH (port 22) is not blocked in your network" -ForegroundColor Gray
-    Write-Host "  - STEP2_testGithubConnection.ps1 succeeds" -ForegroundColor Gray
-    Write-Host "  - STEP3-5 scripts work without errors" -ForegroundColor Gray
-    Write-Host ""
-    $continue = Read-Host "Continue with HTTPS certificate setup anyway? (Y/N)"
-    if ($continue -notmatch "^[Yy]") {
-        Write-Host ""
-        Write-Host "Setup cancelled." -ForegroundColor Yellow
-        Write-Host "You can use SSH authentication (your current setup)" -ForegroundColor Green
-        Write-Host "Run diagnosticcheck.ps1 to verify your configuration" -ForegroundColor Cyan
-        Pause-WithMessage
-        exit 0
-    }
-} else {
-    Write-Host "[INFO] No SSH keys detected" -ForegroundColor Cyan
-    Write-Host "       HTTPS authentication with certificate is recommended" -ForegroundColor Gray
-    Write-Host ""
+    Write-Host "Setup cancelled." -ForegroundColor Yellow
+    Write-Host "Note: STEP2-4 scripts will not work without this certificate" -ForegroundColor Red
+    Pause-WithMessage
+    exit 0
 }
 
+Write-Host ""
 Write-Host "Proceeding with certificate setup..." -ForegroundColor Green
 Write-Host ""
 
@@ -205,9 +237,9 @@ if ($allSslBackend.Count -gt 1) {
 
 # Ask for confirmation to proceed
 Write-Host "`nThis script will:" -ForegroundColor Cyan
-Write-Host "  1. Remove any duplicate SSL configuration entries" -ForegroundColor Gray
+Write-Host "  1. Clean up existing SSL configuration (prevent conflicts)" -ForegroundColor Gray
 Write-Host "  2. Set http.sslcainfo to: $certFilePath" -ForegroundColor Gray
-Write-Host "  3. Set http.sslbackend to: schannel" -ForegroundColor Gray
+Write-Host "  3. Set http.sslbackend to: schannel (Windows native)" -ForegroundColor Gray
 Write-Host "  4. Enable long paths support" -ForegroundColor Gray
 Write-Host "  5. Test GitHub connectivity" -ForegroundColor Gray
 
@@ -224,18 +256,15 @@ if ($confirm -notmatch "^[Yy]") {
 Write-Host "`nConfiguring Git..." -ForegroundColor Yellow
 
 try {
-    # Step 3a: Clean up duplicate entries
-    if ($allSslCaInfo.Count -gt 0) {
-        Show-Status "Removing existing http.sslcainfo entries..." "INFO"
-        git config --global --unset-all http.sslcainfo 2>$null
-    }
+    # Step 3a: Clean up ALL existing entries to prevent conflicts
+    # Always use --unset-all to ensure clean configuration, even if no duplicates exist
+    Show-Status "Removing existing http.sslcainfo entries (if any)..." "INFO"
+    git config --global --unset-all http.sslcainfo 2>$null
     
-    if ($allSslBackend.Count -gt 0) {
-        Show-Status "Removing existing http.sslbackend entries..." "INFO"
-        git config --global --unset-all http.sslbackend 2>$null
-    }
+    Show-Status "Removing existing http.sslbackend entries (if any)..." "INFO"
+    git config --global --unset-all http.sslbackend 2>$null
     
-    # Step 3b: Set the Netskope certificate
+    # Step 3b: Set the Netskope certificate (clean slate)
     Show-Status "Setting http.sslcainfo to Netskope certificate..." "INFO"
     git config --global http.sslcainfo "$certFilePath"
     
@@ -317,38 +346,24 @@ Show-Status "SSL backend set to Windows schannel" "OK"
 Show-Status "Long paths support enabled" "OK"
 
 Write-Host "`nAuthentication Status:" -ForegroundColor Cyan
-if ($sshKeyExists) {
-    Write-Host "  [OK] SSH Authentication: Available" -ForegroundColor Green
-    Write-Host "  [OK] HTTPS Authentication: Now configured" -ForegroundColor Green
-    Write-Host ""
-    Write-Host "  You now have BOTH authentication methods!" -ForegroundColor White
-    Write-Host "  STEP3-5 will use SSH by default (git@github.com:...)" -ForegroundColor Gray
-    Write-Host "  To use HTTPS: modify -RemoteUrl to https://github.com/..." -ForegroundColor Gray
-} else {
-    Write-Host "  [ ] SSH Authentication: Not configured" -ForegroundColor Gray
-    Write-Host "  [OK] HTTPS Authentication: Now configured" -ForegroundColor Green
-    Write-Host ""
-    Write-Host "  Using HTTPS authentication" -ForegroundColor White
-    Write-Host "  To use STEP3-5: modify -RemoteUrl to https://github.com/..." -ForegroundColor Gray
-    Write-Host "  OR run STEP1-2 to set up SSH instead" -ForegroundColor Gray
-}
+Write-Host "  [OK] HTTPS Authentication: Now configured and ready!" -ForegroundColor Green
+Write-Host ""
+Write-Host "  All repository setup scripts (STEP2-4) will now work!" -ForegroundColor White
+Write-Host "  Scripts automatically use HTTPS: https://github.com/..." -ForegroundColor Gray
 
 Write-Host "`nNext Steps:" -ForegroundColor Yellow
-Write-Host "  1. Close ALL PowerShell and Git Bash windows" -ForegroundColor Gray
-Write-Host "  2. Open a new PowerShell window (to refresh environment)" -ForegroundColor Gray
-Write-Host "  3. Run diagnosticcheck.ps1 to verify configuration" -ForegroundColor Gray
-Write-Host "  4. For HTTPS: Modify STEP3-5 RemoteUrl to https://github.com/..." -ForegroundColor Gray
-Write-Host "  5. For SSH: Continue using default git@github.com:... URLs" -ForegroundColor Gray
+Write-Host "  1. [Optional] Test connection: .\STEP0_test-https-connection.ps1" -ForegroundColor Gray
+Write-Host "  2. Clone repositories:" -ForegroundColor Gray
+Write-Host "     - .\STEP2_setup-int-repo.ps1   (Integration)" -ForegroundColor Gray
+Write-Host "     - .\STEP3_setup-test-repo.ps1  (Test/Acceptance)" -ForegroundColor Gray
+Write-Host "     - .\STEP4_setup-prod-repo.ps1  (Production)" -ForegroundColor Gray
+Write-Host "  3. Daily updates: .\DailyUpdate.ps1" -ForegroundColor Gray
 
-Write-Host "`nUsing HTTPS Authentication with STEP3-5:" -ForegroundColor Yellow
-Write-Host "  To clone via HTTPS, run STEP3 like this:" -ForegroundColor Gray
-Write-Host "  .\STEP3_setup-int-repo.ps1 -RemoteUrl \"https://github.com/trimble-transport/ttc-ctp-custint-exchange-platform-monolith.git\"" -ForegroundColor White
-
-Write-Host "`nIf users still experience issues:" -ForegroundColor Yellow
-Write-Host "  - Run the diagnostic: .\diagnosticcheck.ps1" -ForegroundColor Gray
-Write-Host "  - Verify network connectivity to GitHub" -ForegroundColor Gray
-Write-Host "  - For HTTPS: Ensure Git credential manager is working" -ForegroundColor Gray
-Write-Host "  - For SSH: Check that SSH keys are configured (STEP1 & STEP2)" -ForegroundColor Gray
+Write-Host "`nIf you experience issues:" -ForegroundColor Yellow
+Write-Host "  - Test connection: .\STEP0_test-https-connection.ps1" -ForegroundColor Gray
+Write-Host "  - Run diagnostic: .\DiagnosticCheck.ps1" -ForegroundColor Gray
+Write-Host "  - Verify network/VPN connectivity to GitHub" -ForegroundColor Gray
+Write-Host "  - Check GitHub SSO authorization" -ForegroundColor Gray
 
 Write-Host "`nConfiguration Details:" -ForegroundColor Cyan
 Write-Host "  Certificate File: $certFilePath" -ForegroundColor Gray

@@ -1,5 +1,5 @@
 param(
-    [string]$RemoteUrl = "git@github.com:trimble-transport/ttc-ctp-custint-exchange-platform-monolith.git",
+    [string]$RemoteUrl = "https://github.com/trimble-transport/ttc-ctp-custint-exchange-platform-monolith.git",
     [string]$BranchName = "stage-ac",
     [string]$FolderName = "TEST"
 )
@@ -172,7 +172,7 @@ try {
         git config gui.recentrepo $TargetPath
         
         Pop-Location
-        Write-Host "[OK] Repository configured (using SSH authentication)" -ForegroundColor Green
+        Write-Host "[OK] Repository configured (using HTTPS authentication)" -ForegroundColor Green
         
     } else {
         Write-Host "`n[FAIL] Repository clone failed (Exit code: $($cloneResult.ExitCode))" -ForegroundColor Red
@@ -184,49 +184,21 @@ try {
             Write-Host "================================================================" -ForegroundColor Yellow
             Write-Host ""
             
-            # Detect which URL type is being used
-            if ($RemoteUrl -like "git@*" -or $RemoteUrl -like "ssh://*") {
-                Write-Host "Detected: SSH URL (git@github.com:...)" -ForegroundColor Cyan
-                Write-Host ""
-                Write-Host "Common Causes for SSH:" -ForegroundColor White
-                Write-Host "  1. SSH key not added to GitHub" -ForegroundColor Gray
-                Write-Host "  2. SSH (port 22) blocked by firewall/proxy" -ForegroundColor Gray
-                Write-Host "  3. SSH key permissions incorrect" -ForegroundColor Gray
-                Write-Host "  4. Network connectivity issues" -ForegroundColor Gray
-                Write-Host ""
-                Write-Host "Troubleshooting Steps:" -ForegroundColor Yellow
-                Write-Host "  1. Run: .\diagnosticcheck.ps1" -ForegroundColor White
-                Write-Host "  2. Test SSH manually: ssh -vT git@github.com" -ForegroundColor White
-                Write-Host "  3. Verify your SSH key is in GitHub: https://github.com/settings/keys" -ForegroundColor White
-                Write-Host "  4. Check STEP2_testGithubConnection.ps1 succeeds" -ForegroundColor White
-                Write-Host ""
-                Write-Host "Alternative: Switch to HTTPS" -ForegroundColor Cyan
-                Write-Host "  If SSH is blocked, try HTTPS authentication:" -ForegroundColor Gray
-                Write-Host "  1. Run: .\Setup_netskopecertificate_administrator.ps1" -ForegroundColor White
-                Write-Host "  2. Re-run this script with HTTPS URL:" -ForegroundColor White
-                Write-Host "     .\STEP4_setup-test-repo.ps1 -RemoteUrl \"https://github.com/trimble-transport/ttc-ctp-custint-exchange-platform-monolith.git\"" -ForegroundColor White
-            } elseif ($RemoteUrl -like "https://*") {
-                Write-Host "Detected: HTTPS URL (https://github.com/...)" -ForegroundColor Cyan
-                Write-Host ""
-                Write-Host "Common Causes for HTTPS:" -ForegroundColor White
-                Write-Host "  1. Netskope certificate not configured" -ForegroundColor Gray
-                Write-Host "  2. SSL/TLS verification failure" -ForegroundColor Gray
-                Write-Host "  3. Git credential manager issues" -ForegroundColor Gray
-                Write-Host "  4. Network connectivity issues" -ForegroundColor Gray
-                Write-Host ""
-                Write-Host "Troubleshooting Steps:" -ForegroundColor Yellow
-                Write-Host "  1. Run: .\diagnosticcheck.ps1" -ForegroundColor White
-                Write-Host "  2. Configure certificate: .\Setup_netskopecertificate_administrator.ps1" -ForegroundColor White
-                Write-Host "  3. Verify: git config --global http.sslcainfo" -ForegroundColor White
-                Write-Host "  4. Test HTTPS: git ls-remote --heads $RemoteUrl" -ForegroundColor White
-                Write-Host ""
-                Write-Host "Alternative: Switch to SSH" -ForegroundColor Cyan
-                Write-Host "  If HTTPS has issues, try SSH authentication:" -ForegroundColor Gray
-                Write-Host "  1. Run: .\STEP1_sshKeygen.ps1" -ForegroundColor White
-                Write-Host "  2. Run: .\STEP2_testGithubConnection.ps1" -ForegroundColor White
-                Write-Host "  3. Re-run this script with SSH URL (default):" -ForegroundColor White
-                Write-Host "     .\STEP4_setup-test-repo.ps1" -ForegroundColor White
-            }
+            # HTTPS troubleshooting
+            Write-Host "Detected: HTTPS URL (https://github.com/...)" -ForegroundColor Cyan
+            Write-Host ""
+            Write-Host "Common Causes for HTTPS:" -ForegroundColor White
+            Write-Host "  1. Netskope certificate not configured" -ForegroundColor Gray
+            Write-Host "  2. SSL/TLS verification failure" -ForegroundColor Gray
+            Write-Host "  3. Git credential manager issues" -ForegroundColor Gray
+            Write-Host "  4. Network connectivity issues" -ForegroundColor Gray
+            Write-Host "  5. GitHub authentication not set up (SSO/SAML)" -ForegroundColor Gray
+            Write-Host ""
+            Write-Host "Troubleshooting Steps:" -ForegroundColor Yellow
+            Write-Host "  1. Run: .\STEP1_setup-netskope-certificate-https.ps1 (if not done)" -ForegroundColor White
+            Write-Host "  2. Verify: git config --global http.sslcainfo" -ForegroundColor White
+            Write-Host "  3. Test HTTPS: git ls-remote --heads $RemoteUrl" -ForegroundColor White
+            Write-Host "  4. Check GitHub SSO authorization at: https://github.com/settings/connections/applications" -ForegroundColor White
         } else {
             # Generic error message for other exit codes
             Write-Host "Common causes:" -ForegroundColor White
