@@ -269,6 +269,54 @@ C:\DEV\
 └── PROD/                   # Production (stage-pd)
 ```
 
+## 🔄 Certificate Maintenance
+
+### When to Update Certificates
+
+The Netskope certificate needs refreshing when:
+- ⚠️ Netskope software is updated by IT
+- ⚠️ Git HTTPS operations suddenly fail with SSL errors
+- ⚠️ Certificate bundle is over 1 year old
+- ⚠️ After switching computers or user profiles
+
+### Signs You Need to Re-run STEP1
+
+```
+❌ SSL certificate problem: certificate has expired
+❌ SSL: certificate verification failed
+❌ unable to get local issuer certificate
+```
+
+### Solution: Re-run Certificate Setup
+
+Simply re-run STEP1 to extract fresh certificates:
+
+```powershell
+.\STEP1_setup-netskope-certificate-https.ps1
+```
+
+This takes 30-60 seconds and automatically:
+- ✅ Extracts latest certificates from Windows
+- ✅ Includes any Netskope updates
+- ✅ Overwrites old bundle with fresh one
+- ✅ No manual cleanup needed
+
+### Check Certificate Health
+
+Run the health check script periodically:
+
+```powershell
+.\Check-Certificates.ps1
+```
+
+This checks:
+- Certificate file exists
+- Bundle age (warns if > 1 year old)
+- Git configuration is correct
+- GitHub HTTPS connection works
+
+---
+
 ## ❓ Frequently Asked Questions
 
 ### What is HTTPS authentication?
