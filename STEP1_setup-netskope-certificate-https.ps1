@@ -322,16 +322,26 @@ try {
     Show-Status "This may be due to network/firewall issues, not certificate problems" "INFO"
 }
 
-Write-Host "`n=== STEP 6: Set System Environment Variable (Optional) ===" -ForegroundColor Yellow
-Show-Status "Setting REQUESTS_CA_BUNDLE for Python-based tools..." "INFO"
+Write-Host "`n=== STEP 6: Set System Environment Variables (Optional) ===" -ForegroundColor Yellow
+Show-Status "Setting certificate environment variables for additional tools..." "INFO"
 
 try {
-    # Set system-wide environment variable for Python tools (like gcloud)
+    # Set system-wide environment variable for Python tools (like gcloud, pip, requests)
     [System.Environment]::SetEnvironmentVariable('REQUESTS_CA_BUNDLE', $certFilePath, 'Machine')
     Show-Status "REQUESTS_CA_BUNDLE environment variable set" "OK"
     Show-Status "This helps with Google Cloud SDK and other Python tools" "INFO"
 } catch {
     Show-Status "Could not set REQUESTS_CA_BUNDLE environment variable" "WARNING"
+    Show-Status "This is optional and won't affect Git" "INFO"
+}
+
+try {
+    # Set system-wide environment variable for Node.js tools (like MCP servers, npm)
+    [System.Environment]::SetEnvironmentVariable('NODE_EXTRA_CA_CERTS', $certFilePath, 'Machine')
+    Show-Status "NODE_EXTRA_CA_CERTS environment variable set" "OK"
+    Show-Status "This helps with Notion MCP, Cursor extensions, and other Node.js tools" "INFO"
+} catch {
+    Show-Status "Could not set NODE_EXTRA_CA_CERTS environment variable" "WARNING"
     Show-Status "This is optional and won't affect Git" "INFO"
 }
 
@@ -368,6 +378,8 @@ Write-Host "  - Check GitHub SSO authorization" -ForegroundColor Gray
 Write-Host "`nConfiguration Details:" -ForegroundColor Cyan
 Write-Host "  Certificate File: $certFilePath" -ForegroundColor Gray
 Write-Host "  Git Config File: $env:USERPROFILE\.gitconfig" -ForegroundColor Gray
-Write-Host "  Environment Variable: REQUESTS_CA_BUNDLE=$certFilePath" -ForegroundColor Gray
+Write-Host "  Environment Variables:" -ForegroundColor Gray
+Write-Host "    - REQUESTS_CA_BUNDLE=$certFilePath (Python tools)" -ForegroundColor Gray
+Write-Host "    - NODE_EXTRA_CA_CERTS=$certFilePath (Node.js tools)" -ForegroundColor Gray
 
 Pause-WithMessage "Press any key to exit..."
