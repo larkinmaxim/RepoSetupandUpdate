@@ -2,7 +2,7 @@
 
 This repository contains PowerShell scripts for setting up and managing multiple GitHub repository environments (INT, TEST, PROD) with HTTPS authentication and automated daily updates.
 
-## 🌐 Why HTTPS Instead of SSH?
+## 🌐 Why HTTPS Instead of SSH? 
 
 This setup uses **HTTPS authentication** because:
 - ✅ **Port 22 (SSH) is blocked** by Netskope on most user computers
