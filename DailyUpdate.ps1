@@ -110,20 +110,10 @@ function Update-Repository {
     
     Write-Host "Working with branch: $BranchName" -ForegroundColor $Color
     
-    # Step 4: Check out branch
-    Write-Progress -Id 3 -ParentId 2 -Activity "Updating $displayName Repository" -Status "Checking out branch $BranchName..." -PercentComplete 70
-    
-    git checkout $BranchName 2>&1 | Out-Null
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "Creating local branch for $BranchName..." -ForegroundColor $Color
-        Write-Progress -Id 3 -ParentId 2 -Activity "Updating $displayName Repository" -Status "Creating new local branch..." -PercentComplete 80
-        Invoke-GitCommand "git checkout -b $BranchName $remoteBranch"
-    } else {
-        # Step 5: Force update the local branch
-        Write-Host "Resetting local branch to match remote (force pull)..." -ForegroundColor $Color
-        Write-Progress -Id 3 -ParentId 2 -Activity "Updating $displayName Repository" -Status "Performing force pull (reset --hard)..." -PercentComplete 90
-        Invoke-GitCommand "git reset --hard $remoteBranch"
-    }
+    # Step 4: Force update local branch to match remote
+    Write-Host "Force updating local branch to match remote..." -ForegroundColor $Color
+    Write-Progress -Id 3 -ParentId 2 -Activity "Updating $displayName Repository" -Status "Force pulling branch $BranchName..." -PercentComplete 85
+    Invoke-GitCommand "git checkout -B $BranchName $remoteBranch"
     
     # Step 6: Complete
     Write-Progress -Id 3 -ParentId 2 -Activity "Updating $displayName Repository" -Status "$displayName update completed successfully!" -PercentComplete 100
