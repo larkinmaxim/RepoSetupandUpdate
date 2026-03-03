@@ -115,6 +115,10 @@ function Update-Repository {
     Write-Progress -Id 3 -ParentId 2 -Activity "Updating $displayName Repository" -Status "Force pulling branch $BranchName..." -PercentComplete 85
     Invoke-GitCommand "git checkout -B $BranchName $remoteBranch"
     
+    # Display last commit info
+    $lastCommit = git log -1 --format="%h %ad %s" --date=format:'%Y-%m-%d %H:%M:%S' 2>&1
+    Write-Host "Last commit: $lastCommit" -ForegroundColor $Color
+    
     # Step 6: Complete
     Write-Progress -Id 3 -ParentId 2 -Activity "Updating $displayName Repository" -Status "$displayName update completed successfully!" -PercentComplete 100
     Start-Sleep -Milliseconds 800  # Brief pause to show completion
