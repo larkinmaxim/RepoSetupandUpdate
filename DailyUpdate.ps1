@@ -132,10 +132,6 @@ Write-Host "Starting repository update process..." -ForegroundColor Green
 # Initial setup
 Write-Progress -Id 1 -Activity "Initializing Repository Updates" -Status "Setting up Git configuration..." -PercentComplete 5
 
-# Set global git config to avoid credential cache
-Write-Host "Disabling git credential cache globally for this session..."
-Invoke-GitCommand "git config --global credential.helper ''"
-
 # Change directory to starting directory
 Write-Host "Changing directory to $StartingDirectory..."
 cd $StartingDirectory
@@ -165,12 +161,7 @@ for ($i = 0; $i -lt $totalRepos; $i++) {
 
 # Final cleanup with progress
 Write-Progress -Id 2 -Activity "Updating All Repositories" -Status "Finalizing updates..." -PercentComplete 90
-Write-Progress -Id 4 -ParentId 2 -Activity "Cleanup" -Status "Resetting Git configuration..." -PercentComplete 50
-
-# Reset git config to default
-Write-Host "`nResetting git credential helper..."
-Invoke-GitCommand "git config --global --unset credential.helper"
-
+Write-Progress -Id 4 -ParentId 2 -Activity "Cleanup" -Status "Finalizing..." -PercentComplete 50
 Write-Progress -Id 4 -ParentId 2 -Activity "Cleanup" -Status "Cleanup completed" -PercentComplete 100
 Write-Progress -Id 2 -Activity "Updating All Repositories" -Status "All repositories updated successfully!" -PercentComplete 100
 
