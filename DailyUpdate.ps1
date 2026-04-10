@@ -132,6 +132,16 @@ Write-Host "Starting repository update process..." -ForegroundColor Green
 # Initial setup
 Write-Progress -Id 1 -Activity "Initializing Repository Updates" -Status "Setting up Git configuration..." -PercentComplete 5
 
+# Force HTTPS for all GitHub connections (prevents SSH auth issues)
+git config --global url."https://github.com/".insteadOf "git@github.com:"
+
+# Ensure credential helper is active
+$currentHelper = git config --global credential.helper 2>$null
+if (-not $currentHelper) {
+    git config --global credential.helper manager
+    Write-Host "Credential helper set to Windows Credential Manager" -ForegroundColor Yellow
+}
+
 # Change directory to starting directory
 Write-Host "Changing directory to $StartingDirectory..."
 cd $StartingDirectory
